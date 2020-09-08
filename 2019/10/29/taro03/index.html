@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="setState 测试先看几个题 123456789101112131415161718192021222324252627class Example extends React.Component &amp;#123;    constructor(props) &amp;#123;        super(props);    &amp;#125;    state &#x3D; &amp;#123;        val">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React setState 的处理流程">
+<meta property="og:url" content="http://yoursite.com/2019/10/29/taro03/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="setState 测试先看几个题 123456789101112131415161718192021222324252627class Example extends React.Component &amp;#123;    constructor(props) &amp;#123;        super(props);    &amp;#125;    state &#x3D; &amp;#123;        val">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-10-29T14:42:00.000Z">
+<meta property="article:modified_time" content="2020-09-08T12:50:52.632Z">
+<meta property="article:author" content="唐忠正">
+<meta property="article:tag" content="JAVASCRIPT">
+<meta property="article:tag" content="TARO">
+<meta property="article:tag" content="REACT">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>React setState 的处理流程</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/02/02/flutter1_wieght_intro/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/09/24/taro02/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/10/29/taro03/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/10/29/taro03/&text=React setState 的处理流程"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/10/29/taro03/&is_video=false&description=React setState 的处理流程"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=React setState 的处理流程&body=Check out this article: http://yoursite.com/2019/10/29/taro03/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/10/29/taro03/&name=React setState 的处理流程&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A4%E6%97%B6%E7%82%B9%E5%87%BB-button%EF%BC%8Cvalue-%E7%9A%84%E5%80%BC%E8%82%AF%E5%AE%9A%E6%98%AF-2-%E5%95%A6%EF%BC%8C%E5%9B%A0%E4%B8%BA-setState-%E6%98%AF%E5%BC%82%E6%AD%A5%E6%89%A7%E8%A1%8C%E7%9A%84%E3%80%82"><span class="toc-number">1.1.</span> <span class="toc-text">此时点击 button，value 的值肯定是 2 啦，因为 setState 是异步执行的。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%99%E6%A0%B7%E6%89%A7%E8%A1%8C%E5%87%BA%E6%9D%A5%EF%BC%8Cvalue-%E5%8D%B4%E6%98%AF-3%E3%80%82"><span class="toc-number">1.2.</span> <span class="toc-text">这样执行出来，value 却是 3。</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#setState-%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-number">2.</span> <span class="toc-text">setState 的定义</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        React setState 的处理流程
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-10-29T14:42:00.000Z" itemprop="datePublished">2019-10-29</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/JAVASCRIPT/" rel="tag">JAVASCRIPT</a>, <a class="tag-link-link" href="/tags/REACT/" rel="tag">REACT</a>, <a class="tag-link-link" href="/tags/TARO/" rel="tag">TARO</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>setState</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>先看几个题</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">class Example extends React.Component &#123;</span><br><span class="line">    constructor(props) &#123;</span><br><span class="line">        super(props);</span><br><span class="line">    &#125;</span><br><span class="line">    state &#x3D; &#123;</span><br><span class="line">        value: 0</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    render() &#123;</span><br><span class="line">        return (</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;div&gt;The Value: &#123;this.state.value&#125;&lt;&#x2F;div&gt;</span><br><span class="line">                &lt;button onClick&#x3D;&#123;::this._addValue&#125;&gt;add Value&lt;&#x2F;button&gt;</span><br><span class="line">            &lt;&#x2F;div&gt;</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    _addValue() &#123;</span><br><span class="line">        this.setState(&#123;</span><br><span class="line">          value: this.state.value + 1</span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">        this.setState(&#123;</span><br><span class="line">            value: this.state.value + 1</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="此时点击-button，value-的值肯定是-2-啦，因为-setState-是异步执行的。"><a href="#此时点击-button，value-的值肯定是-2-啦，因为-setState-是异步执行的。" class="headerlink" title="此时点击 button，value 的值肯定是 2 啦，因为 setState 是异步执行的。"></a>此时点击 button，value 的值肯定是 2 啦，因为 setState 是异步执行的。</h3><p>且慢，再看下面的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">_addValue() &#123;</span><br><span class="line">    this.setState((preState,props)&#x3D;&gt;(&#123;</span><br><span class="line">        value: preState.value + 1</span><br><span class="line">    &#125;))</span><br><span class="line"></span><br><span class="line">    this.setState((preState,props)&#x3D;&gt;(&#123;</span><br><span class="line">        value: preState.value + 1</span><br><span class="line">    &#125;))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="这样执行出来，value-却是-3。"><a href="#这样执行出来，value-却是-3。" class="headerlink" title="这样执行出来，value 却是 3。"></a>这样执行出来，value 却是 3。</h3><p>setState 不是异步的吗？为什么会出现 3？</p>
+<h2 id="setState-的定义"><a href="#setState-的定义" class="headerlink" title="setState 的定义"></a>setState 的定义</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ReactComponent.prototype.setState &#x3D; function (partialState, callback) &#123;</span><br><span class="line">    this.updater.enqueueSetState(this, partialState);</span><br><span class="line"></span><br><span class="line">    if (callback) &#123;</span><br><span class="line">        this.updater.enqueueCallback(this, callback);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>setState 接受两个参数，第一个是要修改的 state，这里可以传入一个对象或者是函数。第二个参数是 callback，就是 setState 执行成功之后的回调。</p>
+<p>看一下 enqueueSetState，字面意思就是把 setState 放到一个 setState 的队列当中去。执行完成之后把 callback 放到队列中去，等待合适的时间执行。</p>
+<p>接下来我们看一下 enqueueSetState 里做了什么。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">enqueueSetState: function (publicInstance, partialState) &#123;</span><br><span class="line">    var internalInstance &#x3D; getInternalInstanceReadyForUpdate(publicInstance, &#39;setState&#39;);</span><br><span class="line"></span><br><span class="line">    var queue &#x3D; internalInstance._pendingStateQueue</span><br><span class="line">        || (internalInstance._pendingStateQueue &#x3D; []);</span><br><span class="line"></span><br><span class="line">    queue.push(partialState);</span><br><span class="line"></span><br><span class="line">    enqueueUpdate(internalInstance);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>getInternalInstanceReadyForUpdate()就是再包装一下现在要更新的组件，之后再准备一个更新 state 的队列，将 partialState 放进去。</p>
+<p>接着执行 enqueueUpdate。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">enqueueUpdate: function enqueueUpdate(component) &#123;</span><br><span class="line"></span><br><span class="line">    if (!batchingStrategy.isBatchingUpdates) &#123;</span><br><span class="line">        batchingStrategy.batchedUpdates(enqueueUpdate, component);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    dirtyComponents.push(component);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们判断 batchingStrategy.isBatchingUpdates ，这个参数，如果有就放到 dirtyComponents 中，如果没有就走下一步直接去更新。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">var ReactDefaultBatchingStrategy &#x3D; &#123;</span><br><span class="line">    isBatchingUpdates: false,</span><br><span class="line">    batchedUpdates: function(callback, a, b, c, d, e) &#123;</span><br><span class="line">        var alreadyBatchingUpdates &#x3D; ReactDefaultBatchingStrategy.isBatchingUpdates;</span><br><span class="line">        ReactDefaultBatchingStrategy.isBatchingUpdates &#x3D; true;</span><br><span class="line">        if (alreadyBatchingUpdates) &#123;</span><br><span class="line">            callback(a, b, c, d, e);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            transaction.perform(callback, null, a, b, c, d, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>batchedUpdates 这里面又判断了一遍是不是 batchingStrategy.isBatchingUpdates ，如果是的话调上一步的函数，接着重新放到 dirtyComponents 中。如果不是就调用 transaction.perform 去执行啦。</p>
+<p>transaction.perform 执行之后会，会 flush 回调函数的队列，也会去 flush dirtyComponents 这个数组。这个数组在执行前会把状态合并，一次性更新，所以就是第一个测试代码中，value+1 都是 2，是相同的值。但是传入函数的话，就不会被合并，而是依次执行啦。</p>
+<p>那么 batchingStrategy.isBatchingUpdates 是什么时候被阻塞的呢，众所周知，js 是单线程的，你一个 setState 走下来并不会发生异步也没有多线程，只有完全执行完就是 transaction.perform 最后 flush 了，才会执行下一个 setState，这样说来，setState 肯定就是顺讯执行的，不会进到 dirtyComponents 数组中被合并。</p>
+<p>那么，为什么第一个测试代码，会合并呢？这是因为 react 在执行 dom 事件的时候，就会将 batchingStrategy.isBatchingUpdates 设为 true，所有事件方法的 setState 都会推进 dirtyComponents 中。</p>
+<p>再看一个：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">setTimeout(()&#x3D;&gt;&#123;</span><br><span class="line">    this.setState(&#123;</span><br><span class="line">        name: this.state.name+1</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    this.setState(&#123;</span><br><span class="line">        name: this.state.name+1</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;,100)</span><br></pre></td></tr></table></figure>
+
+<p>在事件函数中，用 setTimeout 执行 setState，value 是几？<br>答案是 3。</p>
+<p>用 event loop 去解释，事件函数执行完了，batchingStrategy.isBatchingUpdates 变为 false 了，两个 setState 就都会执行而不会压入 dirtyComponents 了。</p>
+<p>上一个链接，可以直接看题<a target="_blank" rel="noopener" href="https://codepen.io/tangzhongzhengreal/pen/qGJzZB?editors=0011">https://codepen.io/tangzhongzhengreal/pen/qGJzZB?editors=0011</a></p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A4%E6%97%B6%E7%82%B9%E5%87%BB-button%EF%BC%8Cvalue-%E7%9A%84%E5%80%BC%E8%82%AF%E5%AE%9A%E6%98%AF-2-%E5%95%A6%EF%BC%8C%E5%9B%A0%E4%B8%BA-setState-%E6%98%AF%E5%BC%82%E6%AD%A5%E6%89%A7%E8%A1%8C%E7%9A%84%E3%80%82"><span class="toc-number">1.1.</span> <span class="toc-text">此时点击 button，value 的值肯定是 2 啦，因为 setState 是异步执行的。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%99%E6%A0%B7%E6%89%A7%E8%A1%8C%E5%87%BA%E6%9D%A5%EF%BC%8Cvalue-%E5%8D%B4%E6%98%AF-3%E3%80%82"><span class="toc-number">1.2.</span> <span class="toc-text">这样执行出来，value 却是 3。</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#setState-%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-number">2.</span> <span class="toc-text">setState 的定义</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/10/29/taro03/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/10/29/taro03/&text=React setState 的处理流程"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/10/29/taro03/&is_video=false&description=React setState 的处理流程"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=React setState 的处理流程&body=Check out this article: http://yoursite.com/2019/10/29/taro03/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/10/29/taro03/&title=React setState 的处理流程"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/10/29/taro03/&name=React setState 的处理流程&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

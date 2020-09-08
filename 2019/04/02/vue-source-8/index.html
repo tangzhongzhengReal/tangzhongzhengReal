@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="页面初始化的所有状态都准备就绪之后，下一步就是要生成组件相应的虚拟节点—— VNode。初次进行组件初始化的时候，VNode 也会执行一次初始化并存储这时创建好的虚拟节点对象。在随后的生命周期中，组件内的数据发生变动时，会先生成新的 VNode 对象，然后再根据与之前存储的旧虚拟节点的对比来执行刷新页面 DOM 的操作。页面刷新的流程大致上可以这样简单的总结，但是其实现路程是非常复杂的，为了深入地">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 源码探究-虚拟节点的实现">
+<meta property="og:url" content="http://yoursite.com/2019/04/02/vue-source-8/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="页面初始化的所有状态都准备就绪之后，下一步就是要生成组件相应的虚拟节点—— VNode。初次进行组件初始化的时候，VNode 也会执行一次初始化并存储这时创建好的虚拟节点对象。在随后的生命周期中，组件内的数据发生变动时，会先生成新的 VNode 对象，然后再根据与之前存储的旧虚拟节点的对比来执行刷新页面 DOM 的操作。页面刷新的流程大致上可以这样简单的总结，但是其实现路程是非常复杂的，为了深入地">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-04-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-09-05T15:50:12.923Z">
+<meta property="article:author" content="唐忠正">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Vue 源码探究-虚拟节点的实现</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/04/09/vue-source-9/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/03/24/vue-source-7/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/04/02/vue-source-8/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/04/02/vue-source-8/&text=Vue 源码探究-虚拟节点的实现"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/04/02/vue-source-8/&is_video=false&description=Vue 源码探究-虚拟节点的实现"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-虚拟节点的实现&body=Check out this article: http://yoursite.com/2019/04/02/vue-source-8/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/04/02/vue-source-8/&name=Vue 源码探究-虚拟节点的实现&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#VNode-%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">VNode 类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%B2%E6%9F%93%E8%B7%AF%E5%BE%84"><span class="toc-number">2.</span> <span class="toc-text">渲染路径</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6%E5%AE%9E%E4%BE%8B%E5%88%9D%E5%A7%8B%E5%88%9B%E5%BB%BA%E7%94%9F%E6%88%90-DOM"><span class="toc-number">2.1.</span> <span class="toc-text">组件实例初始创建生成 DOM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6%E6%95%B0%E6%8D%AE%E6%9B%B4%E6%96%B0%E5%88%B7%E6%96%B0-DOM"><span class="toc-number">2.2.</span> <span class="toc-text">组件数据更新刷新 DOM</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Vue 源码探究-虚拟节点的实现
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-04-01T16:00:00.000Z" itemprop="datePublished">2019-04-02</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>页面初始化的所有状态都准备就绪之后，下一步就是要生成组件相应的虚拟节点—— VNode。初次进行组件初始化的时候，VNode 也会执行一次初始化并存储这时创建好的虚拟节点对象。在随后的生命周期中，组件内的数据发生变动时，会先生成新的 VNode 对象，然后再根据与之前存储的旧虚拟节点的对比来执行刷新页面 DOM 的操作。页面刷新的流程大致上可以这样简单的总结，但是其实现路程是非常复杂的，为了深入地了解虚拟节点生成和更新的过程，首先来看看 VNode 类的具体实现。</p>
+<h2 id="VNode-类"><a href="#VNode-类" class="headerlink" title="VNode 类"></a>VNode 类</h2><p>VNode 类的实现是支持页面渲染的基础，这个类的实现并不复杂，但无论是创建 Vue 组件实例还是使用动态 JS 扩展函数组件都运用到了渲染函数 render，它充分利用了 VNode 来构建虚拟 DOM 树。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 定义并导出VNode类</span><br><span class="line">export default class VNode &#123;</span><br><span class="line">  &#x2F;&#x2F; 定义实例属性</span><br><span class="line">  tag: string | void; &#x2F;&#x2F; 标签名称</span><br><span class="line">  data: VNodeData | void; &#x2F;&#x2F; 节点数据</span><br><span class="line">  children: ?Array&lt;VNode&gt;; &#x2F;&#x2F; 子虚拟节点列表</span><br><span class="line">  text: string | void; &#x2F;&#x2F; 节点文字</span><br><span class="line">  elm: Node | void; &#x2F;&#x2F; 对应DOM节点</span><br><span class="line">  ns: string | void; &#x2F;&#x2F; 节点命名空间，针对svg标签的属性</span><br><span class="line">  context: Component | void; &#x2F;&#x2F; rendered in this component&#39;s scope &#x2F;&#x2F; 组件上下文</span><br><span class="line">  key: string | number | void;  &#x2F;&#x2F; 节点唯一键</span><br><span class="line">  componentOptions: VNodeComponentOptions | void; &#x2F;&#x2F; 虚拟节点组件配置对象</span><br><span class="line">  componentInstance: Component | void; &#x2F;&#x2F; component instance &#x2F;&#x2F; 组件实例</span><br><span class="line">  parent: VNode | void; &#x2F;&#x2F; component placeholder node &#x2F;&#x2F; 组件占位符节点</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 严格内部属性，有些属性是服务器渲染的情况使用的，暂时还不了解</span><br><span class="line">  &#x2F;&#x2F; strictly internal</span><br><span class="line">  &#x2F;&#x2F; 是否包含原始HTML。只有服务器端会使用</span><br><span class="line">  raw: boolean; &#x2F;&#x2F; contains raw HTML? (server only)</span><br><span class="line">  &#x2F;&#x2F; 是否静态节点，静态节点将会被提升</span><br><span class="line">  isStatic: boolean; &#x2F;&#x2F; hoisted static node</span><br><span class="line">  &#x2F;&#x2F; 是否在根节点插入，进入转换检查所必需的</span><br><span class="line">  isRootInsert: boolean; &#x2F;&#x2F; necessary for enter transition check</span><br><span class="line">  &#x2F;&#x2F; 是否空注释占位符</span><br><span class="line">  isComment: boolean; &#x2F;&#x2F; empty comment placeholder?</span><br><span class="line">  &#x2F;&#x2F; 是否拷贝节点</span><br><span class="line">  isCloned: boolean; &#x2F;&#x2F; is a cloned node?</span><br><span class="line">  &#x2F;&#x2F; 是否一次性节点</span><br><span class="line">  isOnce: boolean; &#x2F;&#x2F; is a v-once node?</span><br><span class="line">  &#x2F;&#x2F; 异步组件工厂方法</span><br><span class="line">  asyncFactory: Function | void; &#x2F;&#x2F; async component factory function</span><br><span class="line">  &#x2F;&#x2F; 异步源</span><br><span class="line">  asyncMeta: Object | void;</span><br><span class="line">  &#x2F;&#x2F; 是否异步占位符</span><br><span class="line">  isAsyncPlaceholder: boolean;</span><br><span class="line">  &#x2F;&#x2F; 服务器端上下文</span><br><span class="line">  ssrContext: Object | void;</span><br><span class="line">  &#x2F;&#x2F; 功能节点的实际实例上下文</span><br><span class="line">  fnContext: Component | void; &#x2F;&#x2F; real context vm for functional nodes</span><br><span class="line">  &#x2F;&#x2F; 方法配置选项，只在服务器渲染使用</span><br><span class="line">  fnOptions: ?ComponentOptions; &#x2F;&#x2F; for SSR caching</span><br><span class="line">  &#x2F;&#x2F; 方法作用域id</span><br><span class="line">  fnScopeId: ?string; &#x2F;&#x2F; functional scope id support</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 构造函数，参数均可选，与上面定义对应</span><br><span class="line">  constructor (</span><br><span class="line">    tag?: string,</span><br><span class="line">    data?: VNodeData,</span><br><span class="line">    children?: ?Array&lt;VNode&gt;,</span><br><span class="line">    text?: string,</span><br><span class="line">    elm?: Node,</span><br><span class="line">    context?: Component,</span><br><span class="line">    componentOptions?: VNodeComponentOptions,</span><br><span class="line">    asyncFactory?: Function</span><br><span class="line">  ) &#123;</span><br><span class="line">    &#x2F;&#x2F; 实例初始化赋值</span><br><span class="line">    this.tag &#x3D; tag</span><br><span class="line">    this.data &#x3D; data</span><br><span class="line">    this.children &#x3D; children</span><br><span class="line">    this.text &#x3D; text</span><br><span class="line">    this.elm &#x3D; elm</span><br><span class="line">    this.ns &#x3D; undefined</span><br><span class="line">    this.context &#x3D; context</span><br><span class="line">    this.fnContext &#x3D; undefined</span><br><span class="line">    this.fnOptions &#x3D; undefined</span><br><span class="line">    this.fnScopeId &#x3D; undefined</span><br><span class="line">    this.key &#x3D; data &amp;&amp; data.key</span><br><span class="line">    this.componentOptions &#x3D; componentOptions</span><br><span class="line">    this.componentInstance &#x3D; undefined</span><br><span class="line">    this.parent &#x3D; undefined</span><br><span class="line">    this.raw &#x3D; false</span><br><span class="line">    this.isStatic &#x3D; false</span><br><span class="line">    this.isRootInsert &#x3D; true</span><br><span class="line">    this.isComment &#x3D; false</span><br><span class="line">    this.isCloned &#x3D; false</span><br><span class="line">    this.isOnce &#x3D; false</span><br><span class="line">    this.asyncFactory &#x3D; asyncFactory</span><br><span class="line">    this.asyncMeta &#x3D; undefined</span><br><span class="line">    this.isAsyncPlaceholder &#x3D; false</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 定义child属性的取值器</span><br><span class="line">  &#x2F;&#x2F; 已弃用：用于向后compat的componentInstance的别名</span><br><span class="line">  &#x2F;&#x2F; DEPRECATED: alias for componentInstance for backwards compat.</span><br><span class="line">  &#x2F;* istanbul ignore next *&#x2F;</span><br><span class="line">  get child (): Component | void &#123;</span><br><span class="line">    return this.componentInstance</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 定义并导出createEmptyVNode函数，创建空虚拟节点</span><br><span class="line">export const createEmptyVNode &#x3D; (text: string &#x3D; &#39;&#39;) &#x3D;&gt; &#123;</span><br><span class="line">  &#x2F;&#x2F; 实例化虚拟节点</span><br><span class="line">  const node &#x3D; new VNode()</span><br><span class="line">  &#x2F;&#x2F; 设置节点文字为空，并设置为注释节点</span><br><span class="line">  node.text &#x3D; text</span><br><span class="line">  node.isComment &#x3D; true</span><br><span class="line">  &#x2F;&#x2F; 返回节点</span><br><span class="line">  return node</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 定义并导出createTextVNode函数，创建文字虚拟节点</span><br><span class="line">export function createTextVNode (val: string | number) &#123;</span><br><span class="line">  &#x2F;&#x2F; 置空实例初始化的标签名，数据，子节点属性，只传入文字</span><br><span class="line">  return new VNode(undefined, undefined, undefined, String(val))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 优化浅拷贝</span><br><span class="line">&#x2F;&#x2F; 用于静态节点和插槽节点，因为它们可以在多个渲染中重用，</span><br><span class="line">&#x2F;&#x2F; 当DOM操作依赖于它们的elm引用时，克隆它们可以避免错误</span><br><span class="line">&#x2F;&#x2F; optimized shallow clone</span><br><span class="line">&#x2F;&#x2F; used for static nodes and slot nodes because they may be reused across</span><br><span class="line">&#x2F;&#x2F; multiple renders, cloning them avoids errors when DOM manipulations rely</span><br><span class="line">&#x2F;&#x2F; on their elm reference.</span><br><span class="line">&#x2F;&#x2F; 定义并导出cloneVNode函数，拷贝节点</span><br><span class="line">export function cloneVNode (vnode: VNode): VNode &#123;</span><br><span class="line">  &#x2F;&#x2F; 拷贝节点并返回</span><br><span class="line">  const cloned &#x3D; new VNode(</span><br><span class="line">    vnode.tag,</span><br><span class="line">    vnode.data,</span><br><span class="line">    vnode.children,</span><br><span class="line">    vnode.text,</span><br><span class="line">    vnode.elm,</span><br><span class="line">    vnode.context,</span><br><span class="line">    vnode.componentOptions,</span><br><span class="line">    vnode.asyncFactory</span><br><span class="line">  )</span><br><span class="line">  cloned.ns &#x3D; vnode.ns</span><br><span class="line">  cloned.isStatic &#x3D; vnode.isStatic</span><br><span class="line">  cloned.key &#x3D; vnode.key</span><br><span class="line">  cloned.isComment &#x3D; vnode.isComment</span><br><span class="line">  cloned.fnContext &#x3D; vnode.fnContext</span><br><span class="line">  cloned.fnOptions &#x3D; vnode.fnOptions</span><br><span class="line">  cloned.fnScopeId &#x3D; vnode.fnScopeId</span><br><span class="line">  cloned.asyncMeta &#x3D; vnode.asyncMeta</span><br><span class="line">  cloned.isCloned &#x3D; true</span><br><span class="line">  return cloned</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>VNode 类实现的源代码分两部分，第一部分是定义 VNode 类自身的实现，第二部分是定一些常用的节点创建方法，包括创建空的虚拟节点，文字虚拟节点和新拷贝节点。虚拟节点本身是一个包含了所有渲染所需信息的载体，从前面一部分的属性就可以看出，不仅有相应的 DOM 标签和属性信息，还包含了子虚拟节点列表，所以一个组件初始化之后得到的 VNode 也是一棵虚拟节点树，实质是抽象和信息化了的对应于 DOM 树的 JS 对象。</p>
+<p>VNode 的使用在服务器渲染中也有应用，关于这一部分暂时放到之后去研究。</p>
+<p>认识到 VNode 的实质之后，对于它的基础性的作用还是不太清楚，为什么需要创建这种对象来呢？答案就在 Vue 的响应式刷新里。如前所述，观察系统实现了对数据变更的监视，在收到变更的通知之后处理权就移交到渲染系统手上，渲染系统首先进行的处理就是根据变动生成新虚拟节点树，然后再去对比旧的虚拟节点树，来实现这个抽象对象的更新，简单的来说就是通过新旧两个节点树的对照，来最终确定一个真实 DOM 建立起来所需要依赖的抽象对象，只要这个真实 DOM 所依赖的对象确定好，渲染函数会把它转化成真实的 DOM 树。</p>
+<p>最后来概括地描述一下 VNode 渲染成真实 DOM 的路径：</p>
+<h2 id="渲染路径"><a href="#渲染路径" class="headerlink" title="渲染路径"></a>渲染路径</h2><p>Vue 的一般渲染有两条路径：</p>
+<ul>
+<li>组件实例初始创建生成 DOM</li>
+<li>组件数据更新刷新 DOM</li>
+</ul>
+<p>在研究生命周期的时候知道，有 mount 和 update 两个钩子函数，这两个生命周期的过程分别代表了两条渲染路径的执行。</p>
+<h3 id="组件实例初始创建生成-DOM"><a href="#组件实例初始创建生成-DOM" class="headerlink" title="组件实例初始创建生成 DOM"></a>组件实例初始创建生成 DOM</h3><p>Vue 组件实例初始创建时，走的是 mount 这条路径，在这条路径上初始没有已暂存的旧虚拟节点，要经历第一轮 VNode 的生成。这一段代码的执行是从 $mount 函数开始的：</p>
+<blockquote>
+<p>$mount =&gt; mountComponent =&gt; updateComponent =&gt; _render =&gt; _update =&gt; createPatchFunction(patch) =&gt; createElm =&gt; insert =&gt; removeVnodes</p>
+</blockquote>
+<p>大致描述一下每一个流程中所进行的关于节点的处理：</p>
+<blockquote>
+<p>mountComponent 接收了挂载的真实 DOM 节点，然后赋值给 vm.$el<br>updateComponent 调用 _update，并传入 _render 生成的新节点<br>_render 生成新虚拟节点树，它内部是调用实例的 createElement 方法创建虚拟节点<br>_update 方法接收到新的虚拟节点后，会根据是否已有存储的旧虚拟节点来分离执行路径，就这一个路径来说，初始储存的 VNode 是不存在的，接下来执行 patch 操作会传入挂载的真实 DOM 节点和新生成的虚拟节点。<br>createPatchFunction 即是 patch 方法调用的实际函数，执行时会将传入的真实 DOM 节点转换成虚拟节点，然后执行 createElm<br>createElm 会根据新的虚拟节点生成真实 DOM 节点，内部同样调用 createElement 方法来创建节点。<br>insert 方法将生成的真实 DOM 插入到 DOM 树中<br>removeVnodes 最后将之前转换的真实 DOM 节点从 DOM 树中移除</p>
+</blockquote>
+<p>以上就是一般初始化 Vue 实例组件时渲染的路径，在这个过程中，初始 VNode 虽然不存在，但是由于挂在的真实 DOM 节点一定存在，所以代码会按照这样的流程来执行。</p>
+<h3 id="组件数据更新刷新-DOM"><a href="#组件数据更新刷新-DOM" class="headerlink" title="组件数据更新刷新 DOM"></a>组件数据更新刷新 DOM</h3><p>一般情况下，数据变成会通知 Watcher 实例调用 update 方法，这个方法在一般情况下会把待渲染的数据观察对象加入到事件任务队列中，避免开销过高在一次处理中集中执行。所以在 mount 路径已经完成了之后，生命周期运行期间都是走的 update 路径，在每一次的事件处理中 nextTick 会调用 flushSchedulerQueue 来开始一轮页面刷新：</p>
+<blockquote>
+<p>flushSchedulerQueue =&gt; watcher.run =&gt; watcher.getAndInvoke =&gt; watcher.get =&gt; updateComponent =&gt; _render =&gt; _update =&gt; createPatchFunction(patch) =&gt; patchVnode =&gt; updateChildren</p>
+</blockquote>
+<p>在这个流程中各个方法的大致处理如下：</p>
+<blockquote>
+<p>flushSchedulerQueue 调用每一个变更了的数据的监视器的 run 方法<br>run 执行调用实例的 getAndInvoke 方法，目的是获取新数据并调用监视器的回调函数<br>getAndInvoke 执行的第一步是要获取变更后的新数据，在这时会调用取值器函数<br>get 执行的取值器函数 getter 被设定为 updateComponent，所以会执行继续执行它<br>updateComponent =&gt; createPatchFunction 之间的流程与另一条路径相同，只是其中基于新旧虚拟节点的判断不一样，如果存在旧虚拟节点就执行 patchVnode 操作。<br>patchVnode 方法是实际更新节点的实现，在这个函数的执行中，会得到最终的真实 DOM</p>
+</blockquote>
+<p>生命周期中的渲染主要是以上两条路径，调用的入口不同，但中间有一部分逻辑是公用的，再根据判断来选择分离的路程来更新 VNode 和刷新节点。在这个过程可以看出 VNode 的重要作用。<br>虽然路径大致可以这样总结，但其中的实现比较复杂。不仅在流程判断上非常有跳跃性，实现更新真实节点树的操作也都是复杂递归的调用。</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#VNode-%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">VNode 类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%B2%E6%9F%93%E8%B7%AF%E5%BE%84"><span class="toc-number">2.</span> <span class="toc-text">渲染路径</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6%E5%AE%9E%E4%BE%8B%E5%88%9D%E5%A7%8B%E5%88%9B%E5%BB%BA%E7%94%9F%E6%88%90-DOM"><span class="toc-number">2.1.</span> <span class="toc-text">组件实例初始创建生成 DOM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6%E6%95%B0%E6%8D%AE%E6%9B%B4%E6%96%B0%E5%88%B7%E6%96%B0-DOM"><span class="toc-number">2.2.</span> <span class="toc-text">组件数据更新刷新 DOM</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/04/02/vue-source-8/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/04/02/vue-source-8/&text=Vue 源码探究-虚拟节点的实现"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/04/02/vue-source-8/&is_video=false&description=Vue 源码探究-虚拟节点的实现"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-虚拟节点的实现&body=Check out this article: http://yoursite.com/2019/04/02/vue-source-8/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/04/02/vue-source-8/&title=Vue 源码探究-虚拟节点的实现"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/04/02/vue-source-8/&name=Vue 源码探究-虚拟节点的实现&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

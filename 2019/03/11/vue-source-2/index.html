@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="基于第三方性能评估工具 Benchmark 的测评结果可以看出 Vue 2.0 版本在整体的性能上得到了大幅优化，即使与 React 和 Angular 最新版相比也相差无几。在提供给使用者的构建版本方面，也进行了针对性的细化，输出了多种不同的版本，以便满足不同需求的开发者使用更精细更适合自己的版本。 在看源码的过程中，可以引入相应的版本，可以直接在 chrome 中 debug。 构建版本的比较">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 源码探究-构建版本的区别">
+<meta property="og:url" content="http://yoursite.com/2019/03/11/vue-source-2/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="基于第三方性能评估工具 Benchmark 的测评结果可以看出 Vue 2.0 版本在整体的性能上得到了大幅优化，即使与 React 和 Angular 最新版相比也相差无几。在提供给使用者的构建版本方面，也进行了针对性的细化，输出了多种不同的版本，以便满足不同需求的开发者使用更精细更适合自己的版本。 在看源码的过程中，可以引入相应的版本，可以直接在 chrome 中 debug。 构建版本的比较">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gig4zvhuauj30z00e0zlb.jpg">
+<meta property="article:published_time" content="2019-03-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-09-05T14:57:25.234Z">
+<meta property="article:author" content="唐忠正">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gig4zvhuauj30z00e0zlb.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Vue 源码探究-构建版本的区别</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/03/12/vue-source-3/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/02/28/vue-source-1/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/11/vue-source-2/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/11/vue-source-2/&text=Vue 源码探究-构建版本的区别"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/11/vue-source-2/&is_video=false&description=Vue 源码探究-构建版本的区别"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-构建版本的区别&body=Check out this article: http://yoursite.com/2019/03/11/vue-source-2/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/11/vue-source-2/&name=Vue 源码探究-构建版本的区别&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E7%89%88%E6%9C%AC%E7%9A%84%E6%AF%94%E8%BE%83"><span class="toc-number">1.</span> <span class="toc-text">构建版本的比较</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E7%89%88-vs-%E8%BF%90%E8%A1%8C%E6%97%B6%E7%89%88"><span class="toc-number">1.1.</span> <span class="toc-text">完整版 vs. 运行时版</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E6%A8%A1%E5%BC%8F-vs-%E7%94%9F%E4%BA%A7%E6%A8%A1%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">开发模式 vs. 生产模式</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Vue 源码探究-构建版本的区别
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-03-10T16:00:00.000Z" itemprop="datePublished">2019-03-11</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>基于第三方性能评估工具 Benchmark 的测评结果可以看出 Vue 2.0 版本在整体的性能上得到了大幅优化，即使与 React 和 Angular 最新版相比也相差无几。在提供给使用者的构建版本方面，也进行了针对性的细化，输出了多种不同的版本，以便满足不同需求的开发者使用更精细更适合自己的版本。</p>
+<p><strong><em>在看源码的过程中，可以引入相应的版本，可以直接在 chrome 中 debug。</em></strong></p>
+<h2 id="构建版本的比较"><a href="#构建版本的比较" class="headerlink" title="构建版本的比较"></a>构建版本的比较</h2><p>官方文档上展示的概括图表：<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gig4zvhuauj30z00e0zlb.jpg"></p>
+<p>解释一下上表列出的所有版本的内容区别和使用场景，</p>
+<p><strong><em>vue.js</em></strong><br>内容：完整未压缩版，包括编译器和运行时两部分代码，支持通用模块引入和闭包返回 Vue 构造函数。<br>建议使用场景：需要编译模板的开发环境。<br>版本说明：由于未压缩，所以在生产环境下是不推荐使用的，这一版本比较适合学习源代码时使用。另外在 Unpkg CDN 上默认使用此完整版构建文件。</p>
+<p><strong><em>vue.min.js</em></strong><br>内容： 完整压缩版，内容和输出完全同上。<br>建议使用场景：需要编译模板的生产环境、浏览器 script 标签直接引用。<br>版本说明：在不想增加使用构建工具的学习曲线和复杂度时，直接使用 script 标签引入此版本可以无门槛直接进入 Vue 的学习和使用，并且支持通用模块加载。在生产环境建议使用压缩版可以减少 30%的文件体积。</p>
+<p><strong><em>vue.common.js</em></strong><br>内容： 完整未压缩 CommonJS 版，内容同上，区别在于输出的是 CommonJS 模块。<br>建议使用场景：需编译模板且使用老版本构建工具的开发环境。<br>版本说明：由于此版本未压缩是不建议直接使用在生产环境上的。如果在使用构建工具的情况下可以直接使用对应的运行时版本，所以该版本的使用场景应该比较有限。</p>
+<p><strong><em>vue.esm.js</em></strong><br>内容： 完整未压缩 ES Module 版，内容同上，区别在于输出的是 ES Module 模块。<br>建议使用场景：需编译模板且使用新版构建工具的开发环境。<br>版本说明：同上。</p>
+<p><strong><em>vue.runtime.js</em></strong><br>内容： 未压缩运行时版，支持通用模块引入和闭包返回 Vue 构造函数。<br>建议使用场景：不需要编译模板的开发环境。<br>版本说明：这一版本也不建议在生产环境使用，需要模块加载可用相应的压缩版。</p>
+<p><strong><em>vue.runtime.min.js</em></strong><br>内容： 压缩运行时版，内容和输出完全同上。<br>建议使用场景：不需要编译模板的生产环境。<br>版本说明：如果不需要编译模板，可以使用这个版本，支持通用模块加载，也可以用 script 标签引入直接在浏览器中使用，是体积最小的版本。</p>
+<p><strong><em>vue.runtime.common.js</em></strong><br>内容： 未压缩版 CommonJs 构建版，内容同上，区别在于输出 CommonJS 模块。<br>建议使用场景：不需编译模板且使用老版本构建工具时。<br>版本说明：使用 browserify 或 webpack1 时默认使用该版本。</p>
+<p><strong><em>vue.runtime.esm.js</em></strong><br>内容： 未压缩版 ES module 构建版，内容同上，区别在于输出 ES module 模块。<br>建议使用场景：不需编译模板且使用新版构建工具时.<br>版本说明：使用 webpack2 和 rollup 时默认使用该版本，在使用最新的 vue-cli 搭建的 webpack 脚手架时就是使用了这个版本。</p>
+<h3 id="完整版-vs-运行时版"><a href="#完整版-vs-运行时版" class="headerlink" title="完整版 vs. 运行时版"></a>完整版 vs. 运行时版</h3><p>完整版的使用场景是需要即时编译模板的情况，什么是即时编译模板？</p>
+<p>在程序运行中进行模板编译。这一过程如同动态加载，当把模板字符串作为配置选项的 template 属性传入 Vue 构造函数后再执行渲染进程；或使用 DOM 已有元素作为模板在运行时加载并编译，这些都是在运行中进行模板编译的实例。由此可见一般使用了 type=”text/x-template”的 script 标签包含的模板就是在代码运行中进行加载编译的，所以此时需要完整版中的编译器来执行把模板转化成渲染函数的过程，否则通过 vue 进行构造的内容是无法显示的。在开发时如果使用了运行时版，Vue 也会在 Console 中给出提示。</p>
+<p>相反，如果使用构建工具开发，在程序运行之前就先执行了模板的编译过程，.vue 单文件组件会被编译转换成 javascript 代码，在浏览器中可以直接运行，所以此时只需使用运行时版本就可以支持 Vue 的正常运行，这样 Vue 的体积更小，有助于提升加载速度，所以在熟悉了 Vue 之后比较推荐配合使用构建工具来进行开发。</p>
+<h2 id="开发模式-vs-生产模式"><a href="#开发模式-vs-生产模式" class="headerlink" title="开发模式 vs. 生产模式"></a>开发模式 vs. 生产模式</h2><p>官方文档表示在通用模块版本中使用了开发和生产模式的硬编码，未压缩版的用于开发模式，压缩版的用于生产模式。</p>
+<p>在使用构建工具时，建议使用与构建工具版本相应的未压缩版，这样在开发时参考错误信息报告和定位调试是非常便利的，而在构建打包到生产环境时，配套插件会负责压缩代码。</p>
+<p>基于网页性能优化的原则，建议在生产环境中都要使用压缩版。只有在开发时才需要未压缩版中的错误提示信息方便定位错误及调整。</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E7%89%88%E6%9C%AC%E7%9A%84%E6%AF%94%E8%BE%83"><span class="toc-number">1.</span> <span class="toc-text">构建版本的比较</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E7%89%88-vs-%E8%BF%90%E8%A1%8C%E6%97%B6%E7%89%88"><span class="toc-number">1.1.</span> <span class="toc-text">完整版 vs. 运行时版</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E6%A8%A1%E5%BC%8F-vs-%E7%94%9F%E4%BA%A7%E6%A8%A1%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">开发模式 vs. 生产模式</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/11/vue-source-2/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/11/vue-source-2/&text=Vue 源码探究-构建版本的区别"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/11/vue-source-2/&is_video=false&description=Vue 源码探究-构建版本的区别"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-构建版本的区别&body=Check out this article: http://yoursite.com/2019/03/11/vue-source-2/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/11/vue-source-2/&title=Vue 源码探究-构建版本的区别"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/11/vue-source-2/&name=Vue 源码探究-构建版本的区别&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="PC 网页微信登录，微信浏览器分享。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微信 JSSDK-网页登录，微信浏览器分享">
+<meta property="og:url" content="http://yoursite.com/2018/03/28/wechat-sdk/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="PC 网页微信登录，微信浏览器分享。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-03-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-09-08T06:23:47.864Z">
+<meta property="article:author" content="唐忠正">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>微信 JSSDK-网页登录，微信浏览器分享</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/08/05/dom_01/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/10/22/service_work01/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/03/28/wechat-sdk/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/03/28/wechat-sdk/&text=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/03/28/wechat-sdk/&is_video=false&description=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=微信 JSSDK-网页登录，微信浏览器分享&body=Check out this article: http://yoursite.com/2018/03/28/wechat-sdk/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/03/28/wechat-sdk/&name=微信 JSSDK-网页登录，微信浏览器分享&description=&lt;p&gt;PC 网页微信登录，微信浏览器分享。&lt;/p&gt;"><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AE%E4%BF%A1%E7%99%BB%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">微信登录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AE%E4%BF%A1%E5%86%85%E7%BD%91%E9%A1%B5%E5%88%86%E4%BA%AB%EF%BC%8Cvue-%E5%8D%95%E9%A1%B5%E5%BA%94%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">微信内网页分享，vue 单页应用</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        微信 JSSDK-网页登录，微信浏览器分享
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-03-27T16:00:00.000Z" itemprop="datePublished">2018-03-28</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>PC 网页微信登录，微信浏览器分享。</p>
+<a id="more"></a>
+
+<h2 id="微信登录"><a href="#微信登录" class="headerlink" title="微信登录"></a>微信登录</h2><p>首先引入微信登录相关的 js<br><code>[http://res.wx.qq.com/connect/zh\_CN/htmledition/js/wxLogin.js]</code></p>
+<p>接着在 html 中创建一个 id 为 aaa 的 div。<br>在页面加载后调用 wxlogin：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">new WxLogin(&#123;</span><br><span class="line">id:&quot;aaa&quot;, </span><br><span class="line">self*redirect: false,</span><br><span class="line">appid: &quot;xxxxxxxid&quot;, </span><br><span class="line">                scope: &quot;snsapi_login&quot;, </span><br><span class="line">                redirect_uri: &quot;xxxx.xxx.xx&#x2F;wxLoginCallback&quot;</span><br><span class="line">             &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>这个东西会创建一个 iframe 放到 aaa 这个 div 上，里面是微信登录的二维码。当扫码成功之后，会执行以下流程：<br><a href="">[] https://images2015.cnblogs.com/blog/731178/201601/731178-20160115132145897-758264873.png </a><br>当用户扫码之后，微信会传递一个 code 到 xxxx.xxx.xx/wxLoginCallback 接口，我们可以使用这个 code，和 appid 以及 AppSecret 来跟微信换取 accesstoken 和 openid<br>access_token*➕ openid 就可以换取用户的基本信息了。<br>当获取成功之后，xxxx.xxx.xx/wxLoginCallback 可以直接做一个重定向，如果重定向的 url 是同域的，这样网页就可以重定向跳转了。<br>同时这里也可以用 websocket，接口成功之后通过 websocket 来通讯，由前端来控制跳转等操作，更多样化。</p>
+<h2 id="微信内网页分享，vue-单页应用"><a href="#微信内网页分享，vue-单页应用" class="headerlink" title="微信内网页分享，vue 单页应用"></a>微信内网页分享，vue 单页应用</h2><ol>
+<li>判断是否是微信浏览器，如果是再引入 jssdk<br>开始判断有没有 weixinjsbridge 这个对象，如果有，那么肯定就是在微信中，如果没有就去监听这个对象 ready 的事件</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">WeixinJSBridgeReady。</span><br><span class="line">if (typeof WeixinJSBridge &#x3D;&#x3D; &quot;object&quot; &amp;&amp; typeof WeixinJSBridge.invoke &#x3D;&#x3D; &quot;function&quot;) &#123;</span><br><span class="line">&#x2F;&#x2F; 引入 js 操作</span><br><span class="line">&#125; else &#123;</span><br><span class="line">if (document.addEventListener) &#123;</span><br><span class="line">document.addEventListener(&quot;WeixinJSBridgeReady&quot;, ()&#x3D;&gt;&#123;</span><br><span class="line">&#x2F;&#x2F; 引入 js 操作</span><br><span class="line">&#125;, false);</span><br><span class="line">&#125; else if (document.attachEvent) &#123;</span><br><span class="line">document.attachEvent(&quot;WeixinJSBridgeReady&quot;, ()&#x3D;&gt;&#123;&#x2F;&#x2F;引入 js 操作&#125;);</span><br><span class="line">document.attachEvent(&quot;onWeixinJSBridgeReady&quot;, ()&#x3D;&gt;&#123;&#x2F;&#x2F;引入 js 操作&#125;);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>引入 js</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">loadScript(url,callback) &#123;</span><br><span class="line">&#x2F;&#x2F; 如果 wx 这个对象，那么说明没有引入 jssdk，之后引入，引入成功之后调用 callback</span><br><span class="line">if(typeof wx &#x3D;&#x3D; &#39;undefined&#39; )&#123;</span><br><span class="line">var script &#x3D; document.createElement(&quot;script&quot;);</span><br><span class="line">script.type &#x3D; &quot;text&#x2F;javascript&quot;;</span><br><span class="line">script.src &#x3D; url;</span><br><span class="line">document.getElementsByTagName(&quot;head&quot;)[0].appendChild(script);</span><br><span class="line">script.onload &#x3D; function() &#123;</span><br><span class="line">callback();</span><br><span class="line">&#125;</span><br><span class="line">&#125;else&#123;</span><br><span class="line">callback();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>最重要的一点就是签名。<br>这里要分享的链接地址，一定要与签名相匹配，才会成功。而这个签名对于 ios 和 android 来讲是不同。<br>android 中，所用的签名 url 是当前分享网页的 url。而 ios 中，所用签名的 url 是这个网站第一次所请求签名的那个 url。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">wximport(url, param) &#123;</span><br><span class="line">&#x2F;&#x2F; 如果是 ios 存入第一次签名的 url，用于后续签名</span><br><span class="line">if (window.entryUrl &#x3D;&#x3D; undefined) &#123;</span><br><span class="line">window.entryUrl &#x3D; location.href.split(&#39;#&#39;)[0]</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 引入 js 成功之后调用</span><br><span class="line">this.loadScript(&quot;http:&#x2F;&#x2F;res.wx.qq.com&#x2F;open&#x2F;js&#x2F;jweixin-1.4.0.js&quot;, ()&#x3D;&gt;&#123;</span><br><span class="line">&#x2F;&#x2F; 传入的 url</span><br><span class="line">let \_url &#x3D; url</span><br><span class="line">&#x2F;&#x2F; 如果是 ios 那么改为第一次签名用的 url</span><br><span class="line">if (window.\_\_wxjs_is_wkwebview &#x3D;&#x3D; true) &#123;</span><br><span class="line">\_url &#x3D; window.entryUrl;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;使用这个 url 请求签名</span><br><span class="line">axios.get(&#39;&#x2F;index&#x2F;getJsApiConfig?url&#x3D;&#39; + \_url)</span><br><span class="line">.then(res &#x3D;&gt; &#123;</span><br><span class="line">if(res.data.status)&#123;</span><br><span class="line">const config &#x3D; res.data.data;</span><br><span class="line">&#x2F;&#x2F; 成功之后配置转发</span><br><span class="line">wx.config(&#123;</span><br><span class="line">debug: false, &#x2F;&#x2F; 开启调试模式,调用的所有 api 的返回值会在客户端 alert 出来，若要查看传入的参数，可以在 pc 端打开，参数信息会通过 log 打出，仅在 pc 端时才会打印。</span><br><span class="line">appId: config.appId, &#x2F;&#x2F; 必填，公众号的唯一标识</span><br><span class="line">timestamp: config.timestamp, &#x2F;&#x2F; 必填，生成签名的时间戳</span><br><span class="line">nonceStr: config.nonceStr, &#x2F;&#x2F; 必填，生成签名的随机串</span><br><span class="line">signature: config.signature,&#x2F;&#x2F; 必填，签名</span><br><span class="line">jsApiList: [&#39;onMenuShareTimeline&#39;,&#39;onMenuShareAppMessage&#39;] &#x2F;&#x2F; 必填，需要使用的 JS 接口列表</span><br><span class="line">&#125;);</span><br><span class="line">&#x2F;&#x2F; 微信分享配置</span><br><span class="line">wx.ready(function () &#123;</span><br><span class="line">&#x2F;&#x2F; wxconfigflag &#x3D; true;</span><br><span class="line">wx.onMenuShareTimeline(param)</span><br><span class="line">wx.onMenuShareAppMessage(param)</span><br><span class="line">&#125;)</span><br><span class="line">&#125;</span><br><span class="line">&#125;)</span><br><span class="line">&#125;);</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>二次分享的问题：从转发的链接进入网页后，再次分享会不成功，原因在于转发出来的链接会包含一些微信的参数，请求签名会失败。<br>可以在路由之前做一遍判断，如果有那么就去掉，用新的 url 强制刷新。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">function getQueryString(name) &#123; &#x2F;&#x2F;根据字段看网址是否拼接&amp;字符串</span><br><span class="line">var reg &#x3D; new RegExp(&quot;(^|&amp;)&quot; + name + &quot;&#x3D;([^&amp;]\*)(&amp;|\$)&quot;, &quot;i&quot;);</span><br><span class="line">var r &#x3D; window.location.search.substr(1).match(reg);</span><br><span class="line">if (r !&#x3D; null)</span><br><span class="line">return unescape(r[2]);</span><br><span class="line">return null;</span><br><span class="line">&#125;</span><br><span class="line">var from &#x3D; getQueryString(&#39;from&#39;);</span><br><span class="line">var appinstall &#x3D; getQueryString(&#39;appinstall&#39;);</span><br><span class="line">var sec &#x3D; getQueryString(&#39;sec&#39;);</span><br><span class="line">var timekey &#x3D; getQueryString(&#39;timekey&#39;);</span><br><span class="line">if (from || appinstall || sec || timekey) &#123; &#x2F;&#x2F;假如拼接上了</span><br><span class="line">var realurl &#x3D; to.path;</span><br><span class="line">let flag &#x3D; false;</span><br><span class="line">Object.keys(to.params).forEach(item &#x3D;&gt; &#123;</span><br><span class="line">if (item !&#x3D;&#x3D; &#39;from&#39; || item !&#x3D; &#39;appinstall&#39; || item !&#x3D; &#39;sec&#39; || item !&#x3D; &#39;timekey&#39;) &#123;</span><br><span class="line">if (!flag) &#123;</span><br><span class="line">realurl &#x3D; realurl + &#39;?&#39;;</span><br><span class="line">flag &#x3D; true;</span><br><span class="line">&#125; else &#123;</span><br><span class="line">realurl &#x3D; realurl + &#39;&amp;&#39;;</span><br><span class="line">&#125;</span><br><span class="line">realurl &#x3D; realurl + item + &#39;&#x3D;&#39; + to.params[item];</span><br><span class="line">&#125;</span><br><span class="line">&#125;)</span><br><span class="line">window.location.href &#x3D; realurl;</span><br><span class="line">&#x2F;&#x2F; router.push(realurl)</span><br><span class="line">return false</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AE%E4%BF%A1%E7%99%BB%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">微信登录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AE%E4%BF%A1%E5%86%85%E7%BD%91%E9%A1%B5%E5%88%86%E4%BA%AB%EF%BC%8Cvue-%E5%8D%95%E9%A1%B5%E5%BA%94%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">微信内网页分享，vue 单页应用</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/03/28/wechat-sdk/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/03/28/wechat-sdk/&text=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/03/28/wechat-sdk/&is_video=false&description=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=微信 JSSDK-网页登录，微信浏览器分享&body=Check out this article: http://yoursite.com/2018/03/28/wechat-sdk/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/03/28/wechat-sdk/&title=微信 JSSDK-网页登录，微信浏览器分享"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/03/28/wechat-sdk/&name=微信 JSSDK-网页登录，微信浏览器分享&description=&lt;p&gt;PC 网页微信登录，微信浏览器分享。&lt;/p&gt;"><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

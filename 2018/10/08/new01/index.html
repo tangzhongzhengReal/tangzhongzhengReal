@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="new 操作符到底做了什么？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="new 操作符">
+<meta property="og:url" content="http://yoursite.com/2018/10/08/new01/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="new 操作符到底做了什么？">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/141/9/thumb.jpg">
+<meta property="article:published_time" content="2018-10-08T14:01:00.000Z">
+<meta property="article:modified_time" content="2020-09-08T13:48:36.398Z">
+<meta property="article:author" content="唐忠正">
+<meta property="article:tag" content="JAVASCRIPT">
+<meta property="article:tag" content="HANDMADE">
+<meta property="article:tag" content="CLASS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/141/9/thumb.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>new 操作符</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/10/12/this/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/09/22/prototype02/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/10/08/new01/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/10/08/new01/&text=new 操作符"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/10/08/new01/&is_video=false&description=new 操作符"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=new 操作符&body=Check out this article: http://yoursite.com/2018/10/08/new01/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/10/08/new01/&name=new 操作符&description=&lt;p&gt;new 操作符到底做了什么？&lt;/p&gt;"><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#new-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">new 的作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%98%E6%9C%89%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">还有什么问题？</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        new 操作符
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-10-08T14:01:00.000Z" itemprop="datePublished">2018-10-08</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/CLASS/" rel="tag">CLASS</a>, <a class="tag-link-link" href="/tags/HANDMADE/" rel="tag">HANDMADE</a>, <a class="tag-link-link" href="/tags/JAVASCRIPT/" rel="tag">JAVASCRIPT</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+<div class="article-gallery">
+    
+    <a class="gallery-item" target="_blank" href="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/141/9/thumb.jpg" rel="gallery_cketkf9hx000g1mnr9w0c5t31 noopener">
+        <img src="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/141/9/thumb.jpg" itemprop="image" />
+    </a>
+    
+</div>
+
+
+  <div class="content" itemprop="articleBody">
+    <p>new 操作符到底做了什么？</p>
+<a id="more"></a>
+
+<h2 id="new-的作用"><a href="#new-的作用" class="headerlink" title="new 的作用"></a>new 的作用</h2><p>众所周知，我们新建一个类的实例的时候，会用 new Class()来实现，那么这么一句做了什么呢？<br>1）创建一个空的对象<br>2）把 Class 的实例对象取出来放到空对象上，并赋值。<br>3）把 Class 的 prototype 挂到之前创建的对象的<code>__proto__</code>上。<br>4）把 this 对象指到自身。</p>
+<p>所以 new 主要做的就是创建了一个对象并且把各种属性绑到自己身上。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">function People (name,age)&#123;</span><br><span class="line">    this.name &#x3D; name;</span><br><span class="line">    this.age &#x3D; age;</span><br><span class="line">&#125;</span><br><span class="line">People.sayhi &#x3D; function()&#123;</span><br><span class="line">    console.log(&#39;hi i am &#39; + this.name);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 以上代码就是那个倒霉的类</span><br><span class="line">&#x2F;&#x2F; 以下代码就是我们想要实现的样子。</span><br><span class="line">let marc &#x3D; new People(&#39;marc&#39; ,18);</span><br><span class="line">marc.sayhi()</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; @args: class, name, age</span><br><span class="line">&#x2F;&#x2F; @return: obj</span><br><span class="line">function myNew()&#123;</span><br><span class="line">    let args &#x3D; [...arguments];</span><br><span class="line">    let Constructor &#x3D; args.shift();</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 新建一个对象，下面第一行这么写还是用到了new，pass掉</span><br><span class="line">    &#x2F;&#x2F; let obj &#x3D; &#123;&#125;;</span><br><span class="line">    &#x2F;&#x2F; 下面这样写不仅创建了对象，并且把类的prototype赋值给了__proto__，一举两得</span><br><span class="line">    let obj &#x3D; Object.create(Constructor.prototype);</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 剩下的就是把实例属性放到obj上了。</span><br><span class="line">    Constructor.call(obj, ...args)</span><br><span class="line"></span><br><span class="line">    return obj;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let marc &#x3D; myNew(People, &#39;marc&#39; ,18);</span><br><span class="line">marc.sayhi()</span><br></pre></td></tr></table></figure>
+
+<p>这里用了两个原生的 api，一个是 Object.create(pro)，这个方法会返回一个双下划线 proto 是传入对象 pro 的对象 obj。<br>还有一个是 call()，将 this 指向 obj，并且函数里面的语句。<br>这里做一个说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function People (name,age)&#123;</span><br><span class="line">    this.name &#x3D; name;</span><br><span class="line">    this.age &#x3D; age;</span><br><span class="line">&#125;</span><br><span class="line">People.sayhi &#x3D; function()&#123;</span><br><span class="line">    console.log(&#39;hi i am &#39; + this.name);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 如果单独执行People()这个方法，没有new操作</span><br><span class="line">People()</span><br><span class="line">&#x2F;&#x2F; 这时候会给window对象设置name，age属性。</span><br><span class="line">&#x2F;&#x2F; 但是并没有改window.__proto__ ，而且window.__proto__不允许修改，如果有修改操作会报错。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://s2.ax1x.com/2019/04/15/AvAoXF.jpg"></p>
+<h2 id="还有什么问题？"><a href="#还有什么问题？" class="headerlink" title="还有什么问题？"></a>还有什么问题？</h2><p>1）当我采用 es6 的写法时</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class People &#123;</span><br><span class="line">    constructor(name,age) &#123;</span><br><span class="line">        this.name &#x3D; name;</span><br><span class="line">        this.age &#x3D; age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sayhi() &#123;</span><br><span class="line">        console.log(&#39;hi i am &#39; + this.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候，People.call()不能运行，会报错<br>TypeError: Class constructor People cannot be invoked without ‘new’</p>
+<p>2）类的构造方法是可以有返回值的<br>经过测试，如果返回值为 obj 类型，那么 new People 会返回这个对象。如果是其他基本类型，则还和平常一样。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">function People (name,age)&#123;</span><br><span class="line">    this.name &#x3D; name;</span><br><span class="line">    this.age &#x3D; age;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; return null;</span><br><span class="line">    &#x2F;&#x2F; return 1;</span><br><span class="line">    &#x2F;&#x2F; return &#39;nihao&#39;;</span><br><span class="line">    &#x2F;&#x2F; return false;</span><br><span class="line">    &#x2F;&#x2F; return undefined;</span><br><span class="line">    return &#123;</span><br><span class="line">        msg: &#39;haha&#39;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">People.sayhi &#x3D; function()&#123;</span><br><span class="line">    console.log(&#39;hi i am &#39; + this.name);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时 new 之后会返回{msg:’haha’}，其余注释掉的都和原来一毛一样。</p>
+<p>修改代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">function myNew()&#123;</span><br><span class="line">    let args &#x3D; [...arguments];</span><br><span class="line">    let Constructor &#x3D; args.shift();</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 新建一个对象，下面第一行这么写还是用到了new，pass掉</span><br><span class="line">    &#x2F;&#x2F; let obj &#x3D; &#123;&#125;;</span><br><span class="line">    &#x2F;&#x2F; 下面这样写不仅创建了对象，并且把类的prototype赋值给了__proto__，一举两得</span><br><span class="line">    let obj &#x3D; Object.create(Constructor.prototype);</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 剩下的就是把实例属性放到obj上了。</span><br><span class="line">    let rtn &#x3D; Constructor.call(obj, ...args)</span><br><span class="line"></span><br><span class="line">    return rtn || obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#new-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">new 的作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%98%E6%9C%89%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">还有什么问题？</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/10/08/new01/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/10/08/new01/&text=new 操作符"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/10/08/new01/&is_video=false&description=new 操作符"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=new 操作符&body=Check out this article: http://yoursite.com/2018/10/08/new01/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/10/08/new01/&title=new 操作符"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/10/08/new01/&name=new 操作符&description=&lt;p&gt;new 操作符到底做了什么？&lt;/p&gt;"><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="随着初始化函数的执行，实例的生命周期也开始运转，在初始化函数里可以看到每个模块向实例集成的功能，这些功能的具体内容以后在单独的文章里继续探索。现在来详细看看类初始化函数的详细代码。 头部引用下面代码位于 vue&#x2F;src&#x2F;core&#x2F;instance&#x2F;init.js 123456789import config from &#39;..&#x2F;config&#39;import &amp;#123; in">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 源码探究-类初始化函数详情">
+<meta property="og:url" content="http://yoursite.com/2019/03/13/vue-source-4/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="随着初始化函数的执行，实例的生命周期也开始运转，在初始化函数里可以看到每个模块向实例集成的功能，这些功能的具体内容以后在单独的文章里继续探索。现在来详细看看类初始化函数的详细代码。 头部引用下面代码位于 vue&#x2F;src&#x2F;core&#x2F;instance&#x2F;init.js 123456789import config from &#39;..&#x2F;config&#39;import &amp;#123; in">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-03-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-09-05T14:56:59.904Z">
+<meta property="article:author" content="唐忠正">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Vue 源码探究-类初始化函数详情</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/03/22/vue-source-5/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/03/12/vue-source-3/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/13/vue-source-4/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/13/vue-source-4/&text=Vue 源码探究-类初始化函数详情"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/13/vue-source-4/&is_video=false&description=Vue 源码探究-类初始化函数详情"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-类初始化函数详情&body=Check out this article: http://yoursite.com/2019/03/13/vue-source-4/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/13/vue-source-4/&name=Vue 源码探究-类初始化函数详情&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%B4%E9%83%A8%E5%BC%95%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">头部引用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%85%E5%8A%A9%E5%87%BD%E6%95%B0-extend"><span class="toc-number">1.1.</span> <span class="toc-text">辅助函数 extend</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mergeOptions"><span class="toc-number">1.2.</span> <span class="toc-text">mergeOptions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%99%E9%87%8C%E4%B8%BB%E8%A6%81%E5%B0%B1%E6%98%AF%E5%90%88%E5%B9%B6-options-%E7%9A%84%E5%A4%84%E7%90%86%E6%AF%94%E8%BE%83%E9%87%8D%E8%A6%81%EF%BC%8C%E9%A6%96%E5%85%88%E6%98%AF%E5%B1%9E%E6%80%A7%E7%9A%84%E5%90%88%E5%B9%B6%E8%A7%84%E5%88%99%EF%BC%8C%E5%90%8E%E6%98%AF%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E5%90%88%E5%B9%B6%E8%A7%84%E5%88%99%E3%80%82"><span class="toc-number">1.3.</span> <span class="toc-text">这里主要就是合并 options 的处理比较重要，首先是属性的合并规则，后是生命周期的合并规则。</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Vue 源码探究-类初始化函数详情
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-03-12T16:00:00.000Z" itemprop="datePublished">2019-03-13</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>随着初始化函数的执行，实例的生命周期也开始运转，在初始化函数里可以看到每个模块向实例集成的功能，这些功能的具体内容以后在单独的文章里继续探索。现在来详细看看类初始化函数的详细代码。</p>
+<h2 id="头部引用"><a href="#头部引用" class="headerlink" title="头部引用"></a>头部引用</h2><p>下面代码位于 vue/src/core/instance/init.js</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">import config from &#39;..&#x2F;config&#39;</span><br><span class="line">import &#123; initProxy &#125; from &#39;.&#x2F;proxy&#39;</span><br><span class="line">import &#123; initState &#125; from &#39;.&#x2F;state&#39;</span><br><span class="line">import &#123; initRender &#125; from &#39;.&#x2F;render&#39;</span><br><span class="line">import &#123; initEvents &#125; from &#39;.&#x2F;events&#39;</span><br><span class="line">import &#123; mark, measure &#125; from &#39;..&#x2F;util&#x2F;perf&#39;</span><br><span class="line">import &#123; initLifecycle, callHook &#125; from &#39;.&#x2F;lifecycle&#39;</span><br><span class="line">import &#123; initProvide, initInjections &#125; from &#39;.&#x2F;inject&#39;</span><br><span class="line">import &#123; extend, mergeOptions, formatComponentName &#125; from &#39;..&#x2F;util&#x2F;index&#39;</span><br></pre></td></tr></table></figure>
+
+<p>头部注入的一些方法是在生命周期运行中开始初始化的功能，之前在核心类实现的文章中有提到过，在这里不展开。config 对象是作为基本的配置参数，在不同运行环境里会更改当中的属性值来适应不同的平台需求，在这个文件中只用到了其中的性能检测属性，与具体的类的实现没有太大关联，与引入的 mark、measure、formatComponentName 方法配合主要是做性能评估用的。</p>
+<p>在初始化组件的时候主要用到的是工具方法 extend、mergeOptions。</p>
+<h3 id="辅助函数-extend"><a href="#辅助函数-extend" class="headerlink" title="辅助函数 extend"></a>辅助函数 extend</h3><p>extend 函数是一个很简单的为对象扩展属性的方法，代码位于这个文件中 vue/src/shared/util.js，具体实现非常基础，看看就好。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Mix properties into target object.</span><br><span class="line"> *&#x2F;</span><br><span class="line">export function extend (to: Object, _from: ?Object): Object &#123;</span><br><span class="line">  for (const key in _from) &#123;</span><br><span class="line">    to[key] &#x3D; _from[key]</span><br><span class="line">  &#125;</span><br><span class="line">  return to</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="mergeOptions"><a href="#mergeOptions" class="headerlink" title="mergeOptions"></a>mergeOptions</h3><p>mergeOptions 函数代码位于 vue/src/core/util/options.js 中，它是初始化合并 options 对象时非常重要的函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 该函数用于将两个配置对象合并为一个新的配置对象，</span><br><span class="line">&#x2F;&#x2F; 核心实体既用于实例化也用于继承</span><br><span class="line">&#x2F;**</span><br><span class="line"> * Merge two option objects into a new one.</span><br><span class="line"> * Core utility used in both instantiation and inheritance.</span><br><span class="line"> *&#x2F;</span><br><span class="line">&#x2F;&#x2F; 导出mergeOptions函数</span><br><span class="line">&#x2F;&#x2F; 接收Object类型的parent、child参数，Component类型的vm参数</span><br><span class="line">&#x2F;&#x2F; 函数返回对象</span><br><span class="line">export function mergeOptions (</span><br><span class="line">  parent: Object,</span><br><span class="line">  child: Object,</span><br><span class="line">  vm?: Component</span><br><span class="line">): Object &#123;</span><br><span class="line">  &#x2F;&#x2F; 非生产环境时检查child对象的components属性中是否有不合适的引用组件名称</span><br><span class="line">  &#x2F;&#x2F; 不合适的组建名主要是指与Vue内建html标签或保留标签名相同的组件名称如slot,component</span><br><span class="line">  &#x2F;&#x2F; 有兴趣了解的可以参照同一文件中的L246到L269查看具体实现</span><br><span class="line">  &#x2F;&#x2F; 其中的辅助工具函数位于src&#x2F;shared&#x2F;util.js的L94到L112</span><br><span class="line">  if (process.env.NODE_ENV !&#x3D;&#x3D; &#39;production&#39;) &#123;</span><br><span class="line">    checkComponents(child)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 如果child传入的是函数对象，则将函数的options属性赋值给child，确保child引用options</span><br><span class="line">  if (typeof child &#x3D;&#x3D;&#x3D; &#39;function&#39;) &#123;</span><br><span class="line">    child &#x3D; child.options</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 下面三个函数都是将child的各个属性格式化成预定好的对象格式</span><br><span class="line">  &#x2F;&#x2F; 标准化属性</span><br><span class="line">  normalizeProps(child, vm)</span><br><span class="line">  &#x2F;&#x2F; 标准化注入</span><br><span class="line">  normalizeInject(child, vm)</span><br><span class="line">  &#x2F;&#x2F; 标准化指令</span><br><span class="line">  normalizeDirectives(child)</span><br><span class="line">  &#x2F;&#x2F; 定义扩展</span><br><span class="line">  const extendsFrom &#x3D; child.extends</span><br><span class="line">  &#x2F;&#x2F; 如果存在则向下递归合并</span><br><span class="line">  if (extendsFrom) &#123;</span><br><span class="line">    parent &#x3D; mergeOptions(parent, extendsFrom, vm)</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 如果存在mixins，则合并每一个mixin对象</span><br><span class="line">  if (child.mixins) &#123;</span><br><span class="line">    for (let i &#x3D; 0, l &#x3D; child.mixins.length; i &lt; l; i++) &#123;</span><br><span class="line">      parent &#x3D; mergeOptions(parent, child.mixins[i], vm)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 定义以空对象options</span><br><span class="line">  const options &#x3D; &#123;&#125;</span><br><span class="line">  let key</span><br><span class="line">  &#x2F;&#x2F; 对每一个parent中的属性进行合并，添加到options中</span><br><span class="line">  for (key in parent) &#123;</span><br><span class="line">    mergeField(key)</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 如果parent中不含有key属性，则对每一个child中key属性进行合并</span><br><span class="line">  for (key in child) &#123;</span><br><span class="line">    if (!hasOwn(parent, key)) &#123;</span><br><span class="line">      mergeField(key)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 定义mergeField函数，接收key参数</span><br><span class="line">  function mergeField (key) &#123;</span><br><span class="line">    &#x2F;&#x2F; 如果strats[key]有定义好的合并策略函数，则复制给strat</span><br><span class="line">    &#x2F;&#x2F; 否则将默认的defaultStrat方法赋给strat</span><br><span class="line">    const strat &#x3D; strats[key] || defaultStrat</span><br><span class="line">    &#x2F;&#x2F; 合并属性</span><br><span class="line">    options[key] &#x3D; strat(parent[key], child[key], vm, key)</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 返回最终options对象</span><br><span class="line">  return options</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>是解决初始化的过程中对继承的类的 options 对象和新传入的 options 对象之间同名属性的冲突，即使用继承的属性值还是新传入的属性值的问题。在代码的一开始官方就已说明它是一个递归函数，可以一并解决添加了扩展内容和使用了 mixins 的场景，总而言之，这个步骤就是确保我们初始化的实例的 options 对象正确唯一。</p>
+<p>代码中有几个标准化属性的函数，具体实现也在以上代码的同一文件中，虽然有一堆代码，但实现还是比较简单，主要目的就是把传入的 options 对象的各个属性格式化成基于对象的预定格式，在以后的运行中方便使用。<br>hasOwn 函数是对 Object.prototype.hasOwnProperty 方法的一个包装，比较简单，需要了解的话就去 util 工具函数文件中查看。</p>
+<p>值得一提的是 strats 的使用。在代码的一开始的部分就定义 strats 变量，并说明它是用来处理父子选项合并属性的功能。</p>
+<h3 id="这里主要就是合并-options-的处理比较重要，首先是属性的合并规则，后是生命周期的合并规则。"><a href="#这里主要就是合并-options-的处理比较重要，首先是属性的合并规则，后是生命周期的合并规则。" class="headerlink" title="这里主要就是合并 options 的处理比较重要，首先是属性的合并规则，后是生命周期的合并规则。"></a>这里主要就是合并 options 的处理比较重要，首先是属性的合并规则，后是生命周期的合并规则。</h3>
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%B4%E9%83%A8%E5%BC%95%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">头部引用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%85%E5%8A%A9%E5%87%BD%E6%95%B0-extend"><span class="toc-number">1.1.</span> <span class="toc-text">辅助函数 extend</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mergeOptions"><span class="toc-number">1.2.</span> <span class="toc-text">mergeOptions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%99%E9%87%8C%E4%B8%BB%E8%A6%81%E5%B0%B1%E6%98%AF%E5%90%88%E5%B9%B6-options-%E7%9A%84%E5%A4%84%E7%90%86%E6%AF%94%E8%BE%83%E9%87%8D%E8%A6%81%EF%BC%8C%E9%A6%96%E5%85%88%E6%98%AF%E5%B1%9E%E6%80%A7%E7%9A%84%E5%90%88%E5%B9%B6%E8%A7%84%E5%88%99%EF%BC%8C%E5%90%8E%E6%98%AF%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E5%90%88%E5%B9%B6%E8%A7%84%E5%88%99%E3%80%82"><span class="toc-number">1.3.</span> <span class="toc-text">这里主要就是合并 options 的处理比较重要，首先是属性的合并规则，后是生命周期的合并规则。</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/13/vue-source-4/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/13/vue-source-4/&text=Vue 源码探究-类初始化函数详情"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/13/vue-source-4/&is_video=false&description=Vue 源码探究-类初始化函数详情"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-类初始化函数详情&body=Check out this article: http://yoursite.com/2019/03/13/vue-source-4/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/13/vue-source-4/&title=Vue 源码探究-类初始化函数详情"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/13/vue-source-4/&name=Vue 源码探究-类初始化函数详情&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

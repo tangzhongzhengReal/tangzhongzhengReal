@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="事件机制 事件机制浏览器触发事件的时候，浏览器会从点击元素的最顶层开始往下找，这个叫事件捕获阶段，找到触发事件的目标元素的时候，叫处于目标阶段，之后就会这个最深处的目标阶段往回走到最顶层，这个叫冒泡阶段。 当我们绑定事件的时候，可以给事件绑定在捕获阶段或者是冒泡阶段。 事件绑定的方式在 html 上写 onclick&#x3D;func()在 js 中写 ele.onclick &#x3D; func(),如果以上两">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DOM 进阶 05">
+<meta property="og:url" content="http://yoursite.com/2018/08/24/dom_05/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="事件机制 事件机制浏览器触发事件的时候，浏览器会从点击元素的最顶层开始往下找，这个叫事件捕获阶段，找到触发事件的目标元素的时候，叫处于目标阶段，之后就会这个最深处的目标阶段往回走到最顶层，这个叫冒泡阶段。 当我们绑定事件的时候，可以给事件绑定在捕获阶段或者是冒泡阶段。 事件绑定的方式在 html 上写 onclick&#x3D;func()在 js 中写 ele.onclick &#x3D; func(),如果以上两">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/140/9/thumb.jpg">
+<meta property="article:published_time" content="2018-08-24T15:01:00.000Z">
+<meta property="article:modified_time" content="2020-09-08T13:47:52.403Z">
+<meta property="article:author" content="唐忠正">
+<meta property="article:tag" content="JAVASCRIPT">
+<meta property="article:tag" content="DOM">
+<meta property="article:tag" content="HTML">
+<meta property="article:tag" content="EVENT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/140/9/thumb.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>DOM 进阶 05</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/09/16/prototype01/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/08/20/dom_04/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/08/24/dom_05/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/08/24/dom_05/&text=DOM 进阶 05"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/08/24/dom_05/&is_video=false&description=DOM 进阶 05"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DOM 进阶 05&body=Check out this article: http://yoursite.com/2018/08/24/dom_05/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/08/24/dom_05/&name=DOM 进阶 05&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E6%9C%BA%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">事件机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E7%BB%91%E5%AE%9A%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">事件绑定的方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="toc-number">3.</span> <span class="toc-text">事件的执行顺序</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#this-%E7%9A%84%E6%8C%87%E5%90%91"><span class="toc-number">3.0.0.1.</span> <span class="toc-text">this 的指向</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#event"><span class="toc-number">4.</span> <span class="toc-text">event</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        DOM 进阶 05
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-08-24T15:01:00.000Z" itemprop="datePublished">2018-08-24</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/DOM/" rel="tag">DOM</a>, <a class="tag-link-link" href="/tags/EVENT/" rel="tag">EVENT</a>, <a class="tag-link-link" href="/tags/HTML/" rel="tag">HTML</a>, <a class="tag-link-link" href="/tags/JAVASCRIPT/" rel="tag">JAVASCRIPT</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+<div class="article-gallery">
+    
+    <a class="gallery-item" target="_blank" href="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/140/9/thumb.jpg" rel="gallery_cketkf9ht00081mnrat7jbyas noopener">
+        <img src="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/140/9/thumb.jpg" itemprop="image" />
+    </a>
+    
+</div>
+
+
+  <div class="content" itemprop="articleBody">
+    <p>事件机制</p>
+<h2 id="事件机制"><a href="#事件机制" class="headerlink" title="事件机制"></a>事件机制</h2><p><img src="https://pic2.zhimg.com/v2-370ffe226f756cd6d20e9eac1728a300_1200x500.jpg"><br>浏览器触发事件的时候，浏览器会从点击元素的最顶层开始往下找，这个叫事件捕获阶段，找到触发事件的目标元素的时候，叫处于目标阶段，之后就会这个最深处的目标阶段往回走到最顶层，这个叫冒泡阶段。</p>
+<p>当我们绑定事件的时候，可以给事件绑定在捕获阶段或者是冒泡阶段。</p>
+<h2 id="事件绑定的方式"><a href="#事件绑定的方式" class="headerlink" title="事件绑定的方式"></a>事件绑定的方式</h2><p>在 html 上写 onclick=func()<br>在 js 中写 ele.onclick = func(),<br>如果以上两种都写了，后者会覆盖掉前者。他们的执行阶段都是在冒泡阶段。<br>ele.addEventListener(‘click’, func, isbubble);<br>Isbubble 如果不传，默认为 false，也是绑定在冒泡阶段。</p>
+<h2 id="事件的执行顺序"><a href="#事件的执行顺序" class="headerlink" title="事件的执行顺序"></a>事件的执行顺序</h2><p>1）先走捕获阶段，再到目标阶段，再到冒泡阶段<br>2）如果同一元素在同一阶段绑定的事件有多个，那么按照绑定的顺序，从前到后执行。<br>3）写在 html 中事件最先执行。<br>4）阻止事件传递 event.stopPropagation</p>
+<h5 id="this-的指向"><a href="#this-的指向" class="headerlink" title="this 的指向"></a>this 的指向</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">   let name &#x3D; document.getElementsByClassName(&#39;name ab&#39;)[0]</span><br><span class="line">    name.addEventListener(&#39;click&#39;,function()&#123;console.log(this)&#125;)</span><br><span class="line">   以上写法this指向name</span><br><span class="line">   如果function写成箭头函数，俺么this指向window或者严格模式下的undefind</span><br><span class="line"></span><br><span class="line">   onclick&#x3D;&quot;aa.call(this)&quot;</span><br><span class="line">   call this之后指向是当前元素，不然是window</span><br><span class="line">   function aa()&#123;</span><br><span class="line">       console.log(this)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="event"><a href="#event" class="headerlink" title="event"></a>event</h2><p>原生的 event 需要在绑定的时候写上要传递 event 参数<br>`onclick=”aa(event)”<br>`或者 addEventListener 的函数中加一个参数，<br>`name.addEventListener(‘click’,function(ev){console.log(ev)})<br>`<br>在 Vue 中的写法是<br><button v-on:click="greet">Greet</button><br>在事件中传递 event 参数，html 中不需要写<br>greet: function (event) {<br>// <code>this</code> 在方法里指向当前 Vue 实例<br>alert(‘Hello ‘ + this.name + ‘!’)<br>// <code>event</code> 是原生 DOM 事件<br>if (event) {<br>alert(event.target.tagName)<br>}<br>}</p>
+<p>第二种<br><button v-on:click="warn('Form cannot be submitted yet.', $event)"><br>Submit<br></button><br>直接传递$event 参数</p>
+<p>event 中的参数<br>Target 就是触发事件的元素，<br>currentTarget，就是正在执行的事件绑定的元素，就是当前的正在操作的元素。</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E6%9C%BA%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">事件机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E7%BB%91%E5%AE%9A%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">事件绑定的方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="toc-number">3.</span> <span class="toc-text">事件的执行顺序</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#this-%E7%9A%84%E6%8C%87%E5%90%91"><span class="toc-number">3.0.0.1.</span> <span class="toc-text">this 的指向</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#event"><span class="toc-number">4.</span> <span class="toc-text">event</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/08/24/dom_05/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/08/24/dom_05/&text=DOM 进阶 05"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/08/24/dom_05/&is_video=false&description=DOM 进阶 05"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DOM 进阶 05&body=Check out this article: http://yoursite.com/2018/08/24/dom_05/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/08/24/dom_05/&title=DOM 进阶 05"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/08/24/dom_05/&name=DOM 进阶 05&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

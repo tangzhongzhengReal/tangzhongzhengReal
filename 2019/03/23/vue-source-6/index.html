@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="紧跟着生命周期之后的就是继续初始化事件相关的属性和方法。整个事件系统的代码相对其他模块来说非常简短，分几个部分来详细看看它的具体实现。 头部引用12345678import &amp;#123;  tip,  toArray,  hyphenate,  handleError,  formatComponentName&amp;#125; from &#39;..&#x2F;util&#x2F;index&amp;#39">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 源码探究-事件系统">
+<meta property="og:url" content="http://yoursite.com/2019/03/23/vue-source-6/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="紧跟着生命周期之后的就是继续初始化事件相关的属性和方法。整个事件系统的代码相对其他模块来说非常简短，分几个部分来详细看看它的具体实现。 头部引用12345678import &amp;#123;  tip,  toArray,  hyphenate,  handleError,  formatComponentName&amp;#125; from &#39;..&#x2F;util&#x2F;index&amp;#39">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-03-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-09-05T15:27:54.824Z">
+<meta property="article:author" content="唐忠正">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Vue 源码探究-事件系统</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/03/24/vue-source-7/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/03/22/vue-source-5/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/23/vue-source-6/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/23/vue-source-6/&text=Vue 源码探究-事件系统"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/23/vue-source-6/&is_video=false&description=Vue 源码探究-事件系统"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-事件系统&body=Check out this article: http://yoursite.com/2019/03/23/vue-source-6/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/23/vue-source-6/&name=Vue 源码探究-事件系统&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%B4%E9%83%A8%E5%BC%95%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">头部引用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">事件初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E7%9B%B8%E5%85%B3%E7%9A%84%E5%8E%9F%E5%9E%8B%E6%96%B9%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">事件相关的原型方法</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Vue 源码探究-事件系统
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-03-22T16:00:00.000Z" itemprop="datePublished">2019-03-23</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>紧跟着生命周期之后的就是继续初始化事件相关的属性和方法。整个事件系统的代码相对其他模块来说非常简短，分几个部分来详细看看它的具体实现。</p>
+<h2 id="头部引用"><a href="#头部引用" class="headerlink" title="头部引用"></a>头部引用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import &#123;</span><br><span class="line">  tip,</span><br><span class="line">  toArray,</span><br><span class="line">  hyphenate,</span><br><span class="line">  handleError,</span><br><span class="line">  formatComponentName</span><br><span class="line">&#125; from &#39;..&#x2F;util&#x2F;index&#39;</span><br><span class="line">import &#123; updateListeners &#125; from &#39;..&#x2F;vdom&#x2F;helpers&#x2F;index&#39;</span><br></pre></td></tr></table></figure>
+
+<p>头部先是引用了的一些工具方法，没有什么难点，具体可以查看相应文件。唯一值得注意的是引用自虚拟节点模块的一个叫 updateListeners 方法。顾名思义，是用来更新监听器的，至于为什么要有这样的一个方法，主要是因为如果该实例的父组件已经存在一些事件监听器，为了正确捕获到事件并向上冒泡，父级事件是需要继承下来的，这个原因在下面的初始化代码中有佐证；另外，如果在实例初始化的时候绑定了同名的事件处理器，也需要为同名事件添加新的处理器，以实现同一事件的多个监听器的绑定。</p>
+<h2 id="事件初始化"><a href="#事件初始化" class="headerlink" title="事件初始化"></a>事件初始化</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 定义并导出initEvents函数，接受Component类型的vm参数</span><br><span class="line">export function initEvents (vm: Component) &#123;</span><br><span class="line">  &#x2F;&#x2F; 创建例的_events属性，初始化为空对象</span><br><span class="line">  vm._events &#x3D; Object.create(null)</span><br><span class="line">  &#x2F;&#x2F; 创建实例的_hasHookEvent属性，初始化为false</span><br><span class="line">  vm._hasHookEvent &#x3D; false</span><br><span class="line">  &#x2F;&#x2F; 初始化父级附属事件</span><br><span class="line">  &#x2F;&#x2F; init parent attached events</span><br><span class="line">  const listeners &#x3D; vm.$options._parentListeners</span><br><span class="line">  &#x2F;&#x2F; 如果父级事件存在，则更新实例事件监听器</span><br><span class="line">  if (listeners) &#123;</span><br><span class="line">    updateComponentListeners(vm, listeners)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 设置target值，目标是引用实例</span><br><span class="line">let target: any</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 添加事件函数，接受事件名称、事件处理器、是否一次性执行三个参数</span><br><span class="line">function add (event, fn, once) &#123;</span><br><span class="line">  if (once) &#123;</span><br><span class="line">    target.$once(event, fn)</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    target.$on(event, fn)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 移除事件函数，接受事件名称和时间处理器两个参数</span><br><span class="line">function remove (event, fn) &#123;</span><br><span class="line">  target.$off(event, fn)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 定义并导出函数updateComponentListeners，接受实例对象，新旧监听器参数</span><br><span class="line">export function updateComponentListeners (</span><br><span class="line">  vm: Component,</span><br><span class="line">  listeners: Object,</span><br><span class="line">  oldListeners: ?Object</span><br><span class="line">) &#123;</span><br><span class="line">  &#x2F;&#x2F; 设置target为vm</span><br><span class="line">  target &#x3D; vm</span><br><span class="line">  &#x2F;&#x2F; 执行更新监听器函数，传入新旧事件监听对象、添加事件与移除事件函数、实例对象</span><br><span class="line">  updateListeners(listeners, oldListeners || &#123;&#125;, add, remove, vm)</span><br><span class="line">  &#x2F;&#x2F; 置空引用</span><br><span class="line">  target &#x3D; undefined</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如上述代码所示，事件监听系统的初始化首先是创建了私有的事件对象和是否有事件钩子的标志两个属性，然后根据父级是否有事件处理器来决定是否更新当前实例的事件监听器，具体如何实现监听器的更新，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 定义并导出updateListeners哈数</span><br><span class="line">&#x2F;&#x2F; 接受新旧事件监听器对象，事件添加和移除函数以及实例对象参数。</span><br><span class="line">export function updateListeners (</span><br><span class="line">  on: Object,</span><br><span class="line">  oldOn: Object,</span><br><span class="line">  add: Function,</span><br><span class="line">  remove: Function,</span><br><span class="line">  vm: Component</span><br><span class="line">) &#123;</span><br><span class="line">  &#x2F;&#x2F; 定义一些辅助变量</span><br><span class="line">  let name, def, cur, old, event</span><br><span class="line">  &#x2F;&#x2F; 遍历新的监听器对象</span><br><span class="line">  for (name in on) &#123;</span><br><span class="line">    &#x2F;&#x2F; 为def和cur赋值为新的事件对象</span><br><span class="line">    def &#x3D; cur &#x3D; on[name]</span><br><span class="line">    &#x2F;&#x2F; 为old赋值为旧的事件对象</span><br><span class="line">    old &#x3D; oldOn[name]</span><br><span class="line">    &#x2F;&#x2F; 标准化事件对象并赋值给event。</span><br><span class="line">    &#x2F;&#x2F; normalizeEvent函数主要用于将传入的带有特殊前缀的事件修饰符分解为具有特定值的事件对象</span><br><span class="line">    event &#x3D; normalizeEvent(name)</span><br><span class="line">    &#x2F;&#x2F; 下面代码是weex框架专用，处理cur变量和格式化好的事件对象的参数属性</span><br><span class="line">    &#x2F;* istanbul ignore if *&#x2F;</span><br><span class="line">    if (__WEEX__ &amp;&amp; isPlainObject(def)) &#123;</span><br><span class="line">      cur &#x3D; def.handler</span><br><span class="line">      event.params &#x3D; def.params</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 如果新事件不存在，在非生产环境中提供报错信息，否则不执行任何操作</span><br><span class="line">    if (isUndef(cur)) &#123;</span><br><span class="line">      process.env.NODE_ENV !&#x3D;&#x3D; &#39;production&#39; &amp;&amp; warn(</span><br><span class="line">        &#96;Invalid handler for event &quot;$&#123;event.name&#125;&quot;: got &#96; + String(cur),</span><br><span class="line">        vm</span><br><span class="line">      )</span><br><span class="line">    &#x2F;&#x2F; 当旧事件不存在时</span><br><span class="line">    &#125; else if (isUndef(old)) &#123;</span><br><span class="line">      &#x2F;&#x2F; 如果新事件对象cur的fns属性不存在</span><br><span class="line">      if (isUndef(cur.fns)) &#123;</span><br><span class="line">        &#x2F;&#x2F; 创建函数调用器并重新复制给cur和on[name]</span><br><span class="line">        cur &#x3D; on[name] &#x3D; createFnInvoker(cur)</span><br><span class="line">      &#125;</span><br><span class="line">      &#x2F;&#x2F; 添加新的事件处理器</span><br><span class="line">      add(event.name, cur, event.once, event.capture, event.passive, event.params)</span><br><span class="line">    &#x2F;&#x2F; 如果新旧事件不完全相等</span><br><span class="line">    &#125; else if (cur !&#x3D;&#x3D; old) &#123;</span><br><span class="line">      &#x2F;&#x2F; 用新事件处理函数覆盖旧事件对象的fns属性</span><br><span class="line">      old.fns &#x3D; cur</span><br><span class="line">      &#x2F;&#x2F; 将事件对象重新复制给on</span><br><span class="line">      on[name] &#x3D; old</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 遍历旧事件监听器</span><br><span class="line">  for (name in oldOn) &#123;</span><br><span class="line">    &#x2F;&#x2F; 如果新事件对象不存在</span><br><span class="line">    if (isUndef(on[name])) &#123;</span><br><span class="line">      &#x2F;&#x2F; 标准化事件对象</span><br><span class="line">      event &#x3D; normalizeEvent(name)</span><br><span class="line">      &#x2F;&#x2F; 移除事件处理器</span><br><span class="line">      remove(event.name, oldOn[name], event.capture)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这段代码中用到了 normalizeEvent 和 createFnInvoker 两个主要的函数来完成更新监听器的实现，代码与 updateListeners 函数位于同一文件中。</p>
+<p>normalizeEvent：主要是用于返回一个定制化的事件对象，这个函数接受 4 个必选参数和 2 两个可选参数，分别是事件名称 name 属性、是否一次性执行的 once 属性、是否捕获事件的 capture 属性、是否使用被动模式 passive 属性、事件处理器 handler 方法、事件处理器参数 params 数组。属性的含义都比较好理解，特别注意一下 once、capture、passive 属性，这三个属性是用来修饰事件的，分别对应了 ~、!、&amp; 修饰符，贴上一个官方文档中的使用示例，引用自事件 &amp; 按键修饰符。启动被动模式的用途是使事件处理器无法阻止默认事件，比如 <a> 标签自带的链接跳转事件，如果设置 passive 为 true，则事件处理器即便是设置了阻止默认事件也是没办法阻止跳转的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">on: &#123;</span><br><span class="line">  &#39;!click&#39;: this.doThisInCapturingMode,</span><br><span class="line">  &#39;~keyup&#39;: this.doThisOnce,</span><br><span class="line">  &#39;~!mouseover&#39;: this.doThisOnceInCapturingMode</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>createFnInvoker： 接受一个 fns 参数，可以传入一个事件处理器函数，也可以传入一个包含多个处理器的数组。在该函数内部定义了一个 invoker 函数并且最终返回它，函数有一个 fns 属性是用来存放所传入的处理器的，调用这个函数后，会按 fns 的类型来分别执行处理器数组的调用或单个处理器的调用。这个实现即是真正执行事件处理器调用的过程。</p>
+<h2 id="事件相关的原型方法"><a href="#事件相关的原型方法" class="headerlink" title="事件相关的原型方法"></a>事件相关的原型方法</h2><p>在事件的初始化过程里有用到几个以 &amp; 开头的类原型方法，它们是在 mixin 函数里挂载到核心类上的。初始化的时候定义的方法都是在这些方法的基础上再进行了一次封装，其绑定事件、触发事件和移除事件的具体实现都在这些方法中，当然不会放过对这些细节的探索。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 导出eventsMixin函数，接收形参Vue，</span><br><span class="line">&#x2F;&#x2F; 使用Flow进行静态类型检查指定为Component类</span><br><span class="line">export function eventsMixin (Vue: Class&lt;Component&gt;) &#123;</span><br><span class="line">  &#x2F;&#x2F; 定义hook正则检验</span><br><span class="line">  const hookRE &#x3D; &#x2F;^hook:&#x2F;</span><br><span class="line">  &#x2F;&#x2F; 给Vue原型对象挂载$on方法</span><br><span class="line">  &#x2F;&#x2F; 参数event可为字符串或数组类型，fn是事件监听函数</span><br><span class="line">  &#x2F;&#x2F; 方法返回实例对象本身</span><br><span class="line">  Vue.prototype.$on &#x3D; function (event: string | Array&lt;string&gt;, fn: Function): Component &#123;</span><br><span class="line">    &#x2F;&#x2F; 定义实例变量</span><br><span class="line">    const vm: Component &#x3D; this</span><br><span class="line">    &#x2F;&#x2F; 如果传入的event参数是数组，遍历event数组，为所有事件注册fn监听函数</span><br><span class="line">    if (Array.isArray(event)) &#123;</span><br><span class="line">      for (let i &#x3D; 0, l &#x3D; event.length; i &lt; l; i++) &#123;</span><br><span class="line">        this.$on(event[i], fn)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      &#x2F;&#x2F; event参数为字符串时，检查event事件监听函数数组是否存在</span><br><span class="line">      &#x2F;&#x2F; 已存在事件监听数组则直接添加新监听函数</span><br><span class="line">      &#x2F;&#x2F; 否则建立空的event事件监听函数数组，再添加新监听函数</span><br><span class="line">      (vm._events[event] || (vm._events[event] &#x3D; [])).push(fn)</span><br><span class="line">      &#x2F;&#x2F; 此处做了性能优化，使用正则检验hook:是否存在的布尔值</span><br><span class="line">      &#x2F;&#x2F; 而不是hash值查找设置实例对象的_hasHookEvent值</span><br><span class="line">      &#x2F;&#x2F; 此次优化是很久之前版本的修改，暂时不太清楚以前hash值查找是什么逻辑，留待以后查证</span><br><span class="line">      &#x2F;&#x2F; optimize hook:event cost by using a boolean flag marked at registration</span><br><span class="line">      &#x2F;&#x2F; instead of a hash lookup</span><br><span class="line">      if (hookRE.test(event)) &#123;</span><br><span class="line">        vm._hasHookEvent &#x3D; true</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 返回实例本身</span><br><span class="line">    return vm</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 为Vue原型对象挂载$once方法</span><br><span class="line">  &#x2F;&#x2F; 参数event只接受字符串，fn是监听函数</span><br><span class="line">  Vue.prototype.$once &#x3D; function (event: string, fn: Function): Component &#123;</span><br><span class="line">    &#x2F;&#x2F; 定义实例变量</span><br><span class="line">    const vm: Component &#x3D; this</span><br><span class="line">    &#x2F;&#x2F; 创建on函数</span><br><span class="line">    function on () &#123;</span><br><span class="line">      &#x2F;&#x2F; 函数执行后先清除event事件绑定的on监听函数，即函数本身</span><br><span class="line">      &#x2F;&#x2F; 这样以后就不会再继续监听event事件</span><br><span class="line">      vm.$off(event, on)</span><br><span class="line">      &#x2F;&#x2F; 在实例上运行fn监听函数</span><br><span class="line">      fn.apply(vm, arguments)</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 为on函数设置fn属性，保证在on函数内能够正确找到fn函数</span><br><span class="line">    on.fn &#x3D; fn</span><br><span class="line">    &#x2F;&#x2F; 为event事件注册on函数</span><br><span class="line">    vm.$on(event, on)</span><br><span class="line">    &#x2F;&#x2F; 返回实例本身</span><br><span class="line">    return vm</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 为Vue原型对象挂载$off方法</span><br><span class="line">  &#x2F;&#x2F; event参数可为字符串或数组类型</span><br><span class="line">  &#x2F;&#x2F; fn是监听函数，为可选参数</span><br><span class="line">  Vue.prototype.$off &#x3D; function (event?: string | Array&lt;string&gt;, fn?: Function): Component &#123;</span><br><span class="line">    &#x2F;&#x2F; 定义实例变量</span><br><span class="line">    const vm: Component &#x3D; this</span><br><span class="line">    &#x2F;&#x2F; 如果没有传入参数，则清除实例对象的所有事件</span><br><span class="line">    &#x2F;&#x2F; 将实例对象的_events私有属性设置为null，并返回实例</span><br><span class="line">   &#x2F;&#x2F; all</span><br><span class="line">    if (!arguments.length) &#123;</span><br><span class="line">      vm._events &#x3D; Object.create(null)</span><br><span class="line">      return vm</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 如果event参数传入数组，清除所有event事件的fn监听函数返回实例</span><br><span class="line">    &#x2F;&#x2F; 这里是$off方法递归执行，最终会以单一事件为基础来实现监听的清除</span><br><span class="line">    &#x2F;&#x2F; array of events</span><br><span class="line">    if (Array.isArray(event)) &#123;</span><br><span class="line">      for (let i &#x3D; 0, l &#x3D; event.length; i &lt; l; i++) &#123;</span><br><span class="line">        this.$off(event[i], fn)</span><br><span class="line">      &#125;</span><br><span class="line">      return vm</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 如果指定单一事件，将事件的监听函数数组赋值给cbs变量</span><br><span class="line">    &#x2F;&#x2F; specific event</span><br><span class="line">    const cbs &#x3D; vm._events[event]</span><br><span class="line">    &#x2F;&#x2F; 如果没有注册此事件监听则返回实例</span><br><span class="line">    if (!cbs) &#123;</span><br><span class="line">      return vm</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 如果没有指定监听函数，则清除所有该事件的监听函数，返回实例</span><br><span class="line">    if (!fn) &#123;</span><br><span class="line">      vm._events[event] &#x3D; null</span><br><span class="line">      return vm</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 如果指定监听函数，则遍历事件监听函数数组，移除指定监听函数返回实例</span><br><span class="line">    if (fn) &#123;</span><br><span class="line">      &#x2F;&#x2F; specific handler</span><br><span class="line">      let cb</span><br><span class="line">      let i &#x3D; cbs.length</span><br><span class="line">      while (i--) &#123;</span><br><span class="line">        cb &#x3D; cbs[i]</span><br><span class="line">        if (cb &#x3D;&#x3D;&#x3D; fn || cb.fn &#x3D;&#x3D;&#x3D; fn) &#123;</span><br><span class="line">          cbs.splice(i, 1)</span><br><span class="line">          break</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return vm</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 为Vue原型对象挂载$emit方法，只接受单一event</span><br><span class="line">  Vue.prototype.$emit &#x3D; function (event: string): Component &#123;</span><br><span class="line">    &#x2F;&#x2F; 定义实例变量</span><br><span class="line">    const vm: Component &#x3D; this</span><br><span class="line">    &#x2F;&#x2F; 在非生产环境下，传入的事件字符串如果是驼峰值且有相应的小写监听事件</span><br><span class="line">    &#x2F;&#x2F; 则提示事件已注册，且无法使用驼峰式注册事件</span><br><span class="line">    if (process.env.NODE_ENV !&#x3D;&#x3D; &#39;production&#39;) &#123;</span><br><span class="line">      const lowerCaseEvent &#x3D; event.toLowerCase()</span><br><span class="line">      if (lowerCaseEvent !&#x3D;&#x3D; event &amp;&amp; vm._events[lowerCaseEvent]) &#123;</span><br><span class="line">        tip(</span><br><span class="line">          &#96;Event &quot;$&#123;lowerCaseEvent&#125;&quot; is emitted in component &#96; +</span><br><span class="line">          &#96;$&#123;formatComponentName(vm)&#125; but the handler is registered for &quot;$&#123;event&#125;&quot;. &#96; +</span><br><span class="line">          &#96;Note that HTML attributes are case-insensitive and you cannot use &#96; +</span><br><span class="line">          &#96;v-on to listen to camelCase events when using in-DOM templates. &#96; +</span><br><span class="line">          &#96;You should probably use &quot;$&#123;hyphenate(event)&#125;&quot; instead of &quot;$&#123;event&#125;&quot;.&#96;</span><br><span class="line">        )</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 将事件监听函数数组赋值 给cbs</span><br><span class="line">    let cbs &#x3D; vm._events[event]</span><br><span class="line">    &#x2F;&#x2F; 如果监听函数数组存在</span><br><span class="line">    if (cbs) &#123;</span><br><span class="line">      &#x2F;&#x2F; 重置cbs变量，为何要使用toArray方法转换一次数组不太明白？</span><br><span class="line">      cbs &#x3D; cbs.length &gt; 1 ? toArray(cbs) : cbs</span><br><span class="line">      &#x2F;&#x2F; 将event之后传入的所有参数定义为args数组</span><br><span class="line">      const args &#x3D; toArray(arguments, 1)</span><br><span class="line">      &#x2F;&#x2F; 遍历所有监听函数，为实例执行每一个监听函数，并传入args参数数组</span><br><span class="line">      for (let i &#x3D; 0, l &#x3D; cbs.length; i &lt; l; i++) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">          cbs[i].apply(vm, args)</span><br><span class="line">        &#125; catch (e) &#123;</span><br><span class="line">          handleError(e, vm, &#96;event handler for &quot;$&#123;event&#125;&quot;&#96;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return vm</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>eventsMixin 的内容非常直观，分别为实例原型对象挂载了$on、$once、$off、$emit 四个方法。这是实例事件监听函数的注册、一次性注册、移除和触发的内部实现。在使用的过程中会对这些实现有一个更清晰的理解。</p>
+<p>终于对 Vue 的事件系统的实现有了一个大致了解，没有什么特别高深的处理，但完整的事件系统的实现有很多细致的功能这里其实并没有特别详细地探讨，比如事件修饰符，可以参考官方文档里的解说会有一个更清晰的了解。事件系统的重要作用首先是为实例制定了一套处理事件的方案和标准，其次是在实例数据更新的过程中保持对事件监听器的更新，这两个部分的处理是最需要细致去琢磨的。</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%B4%E9%83%A8%E5%BC%95%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">头部引用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">事件初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E7%9B%B8%E5%85%B3%E7%9A%84%E5%8E%9F%E5%9E%8B%E6%96%B9%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">事件相关的原型方法</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/23/vue-source-6/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/23/vue-source-6/&text=Vue 源码探究-事件系统"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/23/vue-source-6/&is_video=false&description=Vue 源码探究-事件系统"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-事件系统&body=Check out this article: http://yoursite.com/2019/03/23/vue-source-6/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/23/vue-source-6/&title=Vue 源码探究-事件系统"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/23/vue-source-6/&name=Vue 源码探究-事件系统&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

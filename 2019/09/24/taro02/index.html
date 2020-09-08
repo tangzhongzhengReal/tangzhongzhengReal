@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Taro 下拉刷新 一个 BUG小程序在自定义导航栏的时候，会把 page 的高度从手机屏幕最顶端开始算起。 大家做过的自定义导航栏的都知道，这个自定义导航栏其实是由两部分组成的，一部分是 fixed 定位的，使其一直显示到屏幕的最顶端假装是原生的导航栏。另一部分是做 padding 的，使 page 高度从导航栏下面开始算起。 搞笑的地方来了：当调用小程序下拉刷新接口的时候，在 iOS 端，这个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Taro 自定义下拉刷新的实现">
+<meta property="og:url" content="http://yoursite.com/2019/09/24/taro02/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="Taro 下拉刷新 一个 BUG小程序在自定义导航栏的时候，会把 page 的高度从手机屏幕最顶端开始算起。 大家做过的自定义导航栏的都知道，这个自定义导航栏其实是由两部分组成的，一部分是 fixed 定位的，使其一直显示到屏幕的最顶端假装是原生的导航栏。另一部分是做 padding 的，使 page 高度从导航栏下面开始算起。 搞笑的地方来了：当调用小程序下拉刷新接口的时候，在 iOS 端，这个">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/25/EZtSb9.jpg">
+<meta property="article:published_time" content="2019-09-24T14:42:00.000Z">
+<meta property="article:modified_time" content="2020-09-08T13:01:56.849Z">
+<meta property="article:author" content="唐忠正">
+<meta property="article:tag" content="JAVASCRIPT">
+<meta property="article:tag" content="WECHAT">
+<meta property="article:tag" content="TARO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/04/25/EZtSb9.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Taro 自定义下拉刷新的实现</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/10/29/taro03/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/08/15/taro01/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/09/24/taro02/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/09/24/taro02/&text=Taro 自定义下拉刷新的实现"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/09/24/taro02/&is_video=false&description=Taro 自定义下拉刷新的实现"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Taro 自定义下拉刷新的实现&body=Check out this article: http://yoursite.com/2019/09/24/taro02/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/09/24/taro02/&name=Taro 自定义下拉刷新的实现&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA-BUG"><span class="toc-number">1.</span> <span class="toc-text">一个 BUG</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ScrollView"><span class="toc-number">2.</span> <span class="toc-text">ScrollView</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ScrollView-thouchMove"><span class="toc-number">3.</span> <span class="toc-text">ScrollView thouchMove</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="toc-number">4.</span> <span class="toc-text">完整的代码</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Taro 自定义下拉刷新的实现
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-09-24T14:42:00.000Z" itemprop="datePublished">2019-09-24</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/JAVASCRIPT/" rel="tag">JAVASCRIPT</a>, <a class="tag-link-link" href="/tags/TARO/" rel="tag">TARO</a>, <a class="tag-link-link" href="/tags/WECHAT/" rel="tag">WECHAT</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>Taro 下拉刷新</p>
+<h2 id="一个-BUG"><a href="#一个-BUG" class="headerlink" title="一个 BUG"></a>一个 BUG</h2><p>小程序在自定义导航栏的时候，会把 page 的高度从手机屏幕最顶端开始算起。</p>
+<p>大家做过的自定义导航栏的都知道，这个自定义导航栏其实是由两部分组成的，一部分是 fixed 定位的，使其一直显示到屏幕的最顶端假装是原生的导航栏。另一部分是做 padding 的，使 page 高度从导航栏下面开始算起。</p>
+<p>搞笑的地方来了：<br>当调用小程序下拉刷新接口的时候，在 iOS 端，这个 padding 部分会被拉下来，fixed 的部分是不动的。但是 loading 动画会被 fixed 部分遮挡。机智如我，就想 padding 部分拉下来了，那交互动画我就放在 padding 部分吧。咔咔一写，开发工具完美，iOS 真机调试也很好。当我拿起 android 手机测试的时候，瞬间崩溃了。</p>
+<p>在 android 手机上，下拉刷新会把 fixed 部分也拉下来，原生 loading 动画在屏幕最顶端显示！！！</p>
+<p>奔溃了。</p>
+<h2 id="ScrollView"><a href="#ScrollView" class="headerlink" title="ScrollView"></a>ScrollView</h2><p>试着用 ScrollView 的 bindscrolltoupper 来实现，upper-threshold 属性可以设置负值。<br>这个方法 iOS 上可以用的，iOS 可以可以下拉到负值，但是 android 上是不可以的。</p>
+<h2 id="ScrollView-thouchMove"><a href="#ScrollView-thouchMove" class="headerlink" title="ScrollView thouchMove"></a>ScrollView thouchMove</h2><p>这个其实是参考新浪微博小程序实现的，具体效果和他的一样。<br>thouchMove 这个函数发生在 touchStart 和 touchEnd 之间。在 ScrollView 组件上，当在组件内滑动的时候是 thouchMove 不会触发的。只有滑到边缘才会触发。</p>
+<p>核心思路是：<br>1）在 scroll 上方设置一个 div，当刷新到时候显示，其他时候隐藏。<br>2）判断是否下拉<br>3）下拉之后显示 loading 部分，当异步取到数据之后，设置为刷新成功。<br>4）短暂等待后，隐藏 loading 部分。</p>
+<p><img src="https://s2.ax1x.com/2019/04/25/EZtSb9.jpg"></p>
+<p>判断是否下拉的逻辑</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 下拉刷新的状态</span><br><span class="line">    const REFRESH_FLAG &#x3D; &#123;</span><br><span class="line">        &#39;NOT_SHOW&#39;: 0,</span><br><span class="line">        &#39;LOADING&#39;: 1,</span><br><span class="line">        &#39;OK&#39;: 2</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; thouchMove触发的函数</span><br><span class="line">    scroll(event)&#123;</span><br><span class="line">    	&#x2F;&#x2F; 只有在没有下拉刷新状态时，才去触发下拉刷新</span><br><span class="line">            if ( this.state.refreshFlag &#x3D;&#x3D;&#x3D; REFRESH_FLAG.NOT_SHOW )&#123;</span><br><span class="line">                &#x2F;&#x2F; 下拉刷新的pageY存储</span><br><span class="line">                this.pageYArr || (this.pageYArr &#x3D; [])</span><br><span class="line">    	    &#x2F;&#x2F; 把触发时手指点击的位置储存起来。直接存到this中</span><br><span class="line">                this.pageYArr.push(event.changedTouches[0].pageY)</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F; 判断如果是向下滑动的，那么最近的这次pageY要比之前的大。</span><br><span class="line">    	   &#x2F;&#x2F; 如果大于200 这个偏移量，就触发下拉刷新。</span><br><span class="line">               &#x2F;&#x2F; 关于200偏移量，如果设置的很小的话会触发起来很容易，也会避免两次间隔滑动，第一次在屏幕上方触发了，第二次在屏幕下方上拉触发会判断成刷新。为了解决上述问题，可以加一个时间戳来判断。</span><br><span class="line">                if(event.changedTouches[0].pageY - Math.min(...this.pageYArr) &gt; 200)&#123;</span><br><span class="line">                    console.log(&#39;滑了&#39;)</span><br><span class="line">                    this.pageYArr &#x3D; []</span><br><span class="line"></span><br><span class="line">                    &#x2F;&#x2F; 设置状态为在滑</span><br><span class="line">                    this.setState(&#123;</span><br><span class="line">                        refreshFlag: REFRESH_FLAG.LOADING</span><br><span class="line">                    &#125;)</span><br><span class="line"></span><br><span class="line">    		&#x2F;&#x2F; 执行要获取数据的异步函数。下面有具体代码</span><br><span class="line">                    this.refreshFunction();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;else&#123;</span><br><span class="line">                event.preventDefault()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>还有一点就是，当异步函数触发完成之后，要去隐藏掉下拉刷新的 bar。但是这个异步函数是从别的组件传入的，所以要在传入的方法里加一句回调。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">    &#x2F;&#x2F; combine一下</span><br><span class="line">        refreshFunction()&#123;</span><br><span class="line">            const _that &#x3D; this;</span><br><span class="line">            this.props.onAsyncFn(_that.commonFn.bind(_that))</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 需要异步成功之后 调用的方法 隐藏之前的loading div</span><br><span class="line">        commonFn()&#123;</span><br><span class="line">            console.log(this)</span><br><span class="line">            this.setState(&#123;</span><br><span class="line">                refreshFlag: REFRESH_FLAG.OK</span><br><span class="line">            &#125;,()&#x3D;&gt;&#123;</span><br><span class="line">                setTimeout(()&#x3D;&gt;&#123;</span><br><span class="line">                    this.pageYArr &#x3D; [];</span><br><span class="line">                    this.setState(&#123;</span><br><span class="line">                        refreshFlag: REFRESH_FLAG.NOT_SHOW</span><br><span class="line">                    &#125;)</span><br><span class="line">                &#125;,500)</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">传入的函数按照下面这么写，在执行最后要调一下回调函数。</span><br><span class="line"></span><br><span class="line">    refreshFunction()&#123;</span><br><span class="line">            setTimeout(()&#x3D;&gt;&#123;</span><br><span class="line">                console.log(&#39;刷新完了&#39;)</span><br><span class="line">    	    &#x2F;&#x2F; 需要调一下回调函数。就是上面的commonFn</span><br><span class="line">                arguments.length &gt; 0 &amp;&amp; arguments[0]()</span><br><span class="line">            &#125;,1000)</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="完整的代码"><a href="#完整的代码" class="headerlink" title="完整的代码"></a>完整的代码</h2><p>RefreshScrollView 组件 js</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br></pre></td><td class="code"><pre><span class="line">    import Taro from &#39;@tarojs&#x2F;taro&#39;;</span><br><span class="line">    import &#123; View, Text, ScrollView &#125; from &#39;@tarojs&#x2F;components&#39;;</span><br><span class="line">    import &#123; AtIcon &#125; from &#39;taro-ui&#39;</span><br><span class="line">    import &#39;.&#x2F;index.scss&#39;</span><br><span class="line"></span><br><span class="line">    import &#39;@tarojs&#x2F;async-await&#39;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 下拉刷新的状态</span><br><span class="line">    const REFRESH_FLAG &#x3D; &#123;</span><br><span class="line">        &#39;NOT_SHOW&#39;: 0,</span><br><span class="line">        &#39;LOADING&#39;: 1,</span><br><span class="line">        &#39;OK&#39;: 2</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    export default class RefreshScrollView extends Taro.Component &#123;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 初始状态</span><br><span class="line">        state &#x3D; &#123;</span><br><span class="line">            refreshFlag : REFRESH_FLAG.NOT_SHOW</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 滚动事件</span><br><span class="line">        scroll(event)&#123;</span><br><span class="line">            if ( this.state.refreshFlag &#x3D;&#x3D;&#x3D; REFRESH_FLAG.NOT_SHOW )&#123;</span><br><span class="line">                &#x2F;&#x2F; 下拉刷新的pageY存储</span><br><span class="line">                this.pageYArr || (this.pageYArr &#x3D; [])</span><br><span class="line"></span><br><span class="line">                this.pageYArr.push(event.changedTouches[0].pageY)</span><br><span class="line"></span><br><span class="line">                if(event.changedTouches[0].pageY - Math.min(...this.pageYArr) &gt; 200)&#123;</span><br><span class="line">                    console.log(&#39;滑了&#39;)</span><br><span class="line">                    this.pageYArr &#x3D; []</span><br><span class="line"></span><br><span class="line">                    &#x2F;&#x2F; 设置状态为在滑</span><br><span class="line">                    this.setState(&#123;</span><br><span class="line">                        refreshFlag: REFRESH_FLAG.LOADING</span><br><span class="line">                    &#125;)</span><br><span class="line"></span><br><span class="line">                    this.refreshFunction();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;else&#123;</span><br><span class="line">                event.preventDefault()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; combine一下</span><br><span class="line">        refreshFunction()&#123;</span><br><span class="line">            const _that &#x3D; this;</span><br><span class="line">            this.props.onAsyncFn(_that.commonFn.bind(_that))</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 需要异步成功之后 调用的方法</span><br><span class="line">        commonFn()&#123;</span><br><span class="line">            console.log(this)</span><br><span class="line">            this.setState(&#123;</span><br><span class="line">                refreshFlag: REFRESH_FLAG.OK</span><br><span class="line">            &#125;,()&#x3D;&gt;&#123;</span><br><span class="line">                setTimeout(()&#x3D;&gt;&#123;</span><br><span class="line">                    this.pageYArr &#x3D; [];</span><br><span class="line">                    this.setState(&#123;</span><br><span class="line">                        refreshFlag: REFRESH_FLAG.NOT_SHOW</span><br><span class="line">                    &#125;)</span><br><span class="line">                &#125;,500)</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        render() &#123;</span><br><span class="line">            const pageStyle &#x3D; &#123;</span><br><span class="line">                height: this.props.sheight + &#39;PX&#39;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            let refreshBarClass &#x3D; &#39;refresh-bar&#39;;</span><br><span class="line">            if (this.state.refreshFlag &#x3D;&#x3D;  REFRESH_FLAG.LOADING )&#123;</span><br><span class="line">                refreshBarClass &#x3D; &#39;refresh-bar refresh-bar-show&#39;</span><br><span class="line">            &#125;</span><br><span class="line">            if (this.state.refreshFlag &#x3D;&#x3D;  REFRESH_FLAG.OK )&#123;</span><br><span class="line">                refreshBarClass &#x3D; &#39;refresh-bar refresh-bar-show refresh-success&#39;</span><br><span class="line">            &#125;</span><br><span class="line">            console.log(this.props)</span><br><span class="line">            return (</span><br><span class="line">                &lt;View&gt;</span><br><span class="line">                    &lt;View className&#x3D;&#123;refreshBarClass&#125;&gt;</span><br><span class="line">                        &#123;</span><br><span class="line">                            this.state.refreshFlag &#x3D;&#x3D;  REFRESH_FLAG.LOADING</span><br><span class="line">                            ?(</span><br><span class="line">                                &lt;View className&#x3D;&quot;loading-icon&quot;&gt;</span><br><span class="line">                                    &lt;AtIcon value&#x3D;&#39;loading&#39; size&#x3D;&#39;20&#39; color&#x3D;&#39;#919492&#39;&gt;&lt;&#x2F;AtIcon&gt;</span><br><span class="line">                                &lt;&#x2F;View&gt;</span><br><span class="line">                            )</span><br><span class="line">                            :&#39;&#39;</span><br><span class="line"></span><br><span class="line">                        &#125;</span><br><span class="line">                        &lt;Text &gt;&#123;this.state.refreshFlag &#x3D;&#x3D;  REFRESH_FLAG.LOADING ? &#39;加载中&#39; : &#39;已完成&#39;&#125;&lt;&#x2F;Text&gt;</span><br><span class="line">                    &lt;&#x2F;View&gt;</span><br><span class="line">                    &lt;ScrollView className&#x3D;&quot;scroll-view&quot; style&#x3D;&#123;pageStyle&#125; scroll-y&#x3D;&#123;true&#125; onTouchMove&#x3D;&#123;this.scroll.bind(this)&#125;&gt;</span><br><span class="line">                        &#123;this.props.children&#125;</span><br><span class="line">                    &lt;&#x2F;ScrollView&gt;</span><br><span class="line">                &lt;&#x2F;View&gt;</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">RefreshScrollView 的 scss</span><br><span class="line"></span><br><span class="line">    .refresh-bar &#123;</span><br><span class="line">        height: 0rpx;</span><br><span class="line">        display: flex;</span><br><span class="line">        justify-content: center;</span><br><span class="line">        align-items: center;</span><br><span class="line">        background: $indexBgColor;</span><br><span class="line">        color: $subTextColor;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        font-size: 24rpx;</span><br><span class="line">        transition: height .2s ease;</span><br><span class="line">        overflow: hidden;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &amp;.refresh-bar-show &#123;</span><br><span class="line">            height: 90rpx;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &amp;.refresh-success &#123;</span><br><span class="line">            background: #6190E8;</span><br><span class="line">            color: #F7F7F7;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        .loading-icon&#123;</span><br><span class="line">            animation: loading 1s linear infinite;</span><br><span class="line">            margin-right: 10rpx;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @keyframes loading&#123;</span><br><span class="line">        0% &#123;</span><br><span class="line">            transform: rotate(0)</span><br><span class="line">        &#125;</span><br><span class="line">        100% &#123;</span><br><span class="line">            transform: rotate(360deg)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    .scroll-view::-webkit-scrollbar &#123;</span><br><span class="line">        width: 0;</span><br><span class="line">        height: 0;</span><br><span class="line">        color: transparent;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">调用组件的 页面 js</span><br><span class="line"></span><br><span class="line">    import Taro from &#39;@tarojs&#x2F;taro&#39;;</span><br><span class="line">    import RefreshScrollView from &#39;@&#x2F;components&#x2F;refresh-scroll-view&#39;</span><br><span class="line">    import &#123; View,Text,Block &#125; from &#39;@tarojs&#x2F;components&#39;;</span><br><span class="line">    import &#123; AtIcon, AtButton &#125; from &#39;taro-ui&#39;</span><br><span class="line"></span><br><span class="line">    import &#39;.&#x2F;index.scss&#39;</span><br><span class="line">    import IconSearch from &#39;@&#x2F;images&#x2F;icon-search.png&#39;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 下拉刷新的状态</span><br><span class="line">    const REFRESH_FLAG &#x3D; &#123;</span><br><span class="line">        &#39;NOT_SHOW&#39;: 0,</span><br><span class="line">        &#39;LOADING&#39;: 1,</span><br><span class="line">        &#39;OK&#39;: 2</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    export default class Explore extends Taro.Component &#123;</span><br><span class="line">        state &#x3D; &#123;</span><br><span class="line">            cateIndex: 0,</span><br><span class="line">            lineLeft: &#39;42rpx&#39;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        refreshFunction()&#123;</span><br><span class="line">            setTimeout(()&#x3D;&gt;&#123;</span><br><span class="line">                console.log(&#39;刷新完了&#39;)</span><br><span class="line">                arguments.length &gt; 0 &amp;&amp; arguments[0]()</span><br><span class="line">            &#125;,1000)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">         render() &#123;</span><br><span class="line">            const pageStyle &#x3D; &#123;</span><br><span class="line">                height: this.props.sheight + &#39;PX&#39;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return (</span><br><span class="line">                &lt;View&gt;</span><br><span class="line">                    &lt;RefreshScrollView sheight&#x3D;&#123;this.props.sheight&#125; onAsyncFn&#x3D;&#123;this.refreshFunction.bind(this)&#125;&gt;</span><br><span class="line">    	                &lt;View&gt;123&lt;&#x2F; View&gt;</span><br><span class="line">                    &lt;&#x2F;RefreshScrollView&gt;</span><br><span class="line">                &lt;&#x2F;View&gt;</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA-BUG"><span class="toc-number">1.</span> <span class="toc-text">一个 BUG</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ScrollView"><span class="toc-number">2.</span> <span class="toc-text">ScrollView</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ScrollView-thouchMove"><span class="toc-number">3.</span> <span class="toc-text">ScrollView thouchMove</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="toc-number">4.</span> <span class="toc-text">完整的代码</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/09/24/taro02/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/09/24/taro02/&text=Taro 自定义下拉刷新的实现"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/09/24/taro02/&is_video=false&description=Taro 自定义下拉刷新的实现"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Taro 自定义下拉刷新的实现&body=Check out this article: http://yoursite.com/2019/09/24/taro02/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/09/24/taro02/&title=Taro 自定义下拉刷新的实现"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/09/24/taro02/&name=Taro 自定义下拉刷新的实现&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

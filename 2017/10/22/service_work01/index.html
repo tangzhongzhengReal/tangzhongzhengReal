@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Service Worker 是什么浏览器中的 javaScript 都是运行在一个单一主线程上的，在同一时间内只能做一件事情。随着 Web 业务不断复杂，我们逐渐在 js 中加了很多耗资源、耗时间的复杂运算过程。 W3C 组织早早的洞察到了这些问题可能会造成的影响，这个时候有个叫 Web Worker 的 API 被造出来了，这个 API 的唯一目的就是解放主线程，Web Worker 是脱离在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Service Worker 简介，注册和安装">
+<meta property="og:url" content="http://yoursite.com/2017/10/22/service_work01/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="Service Worker 是什么浏览器中的 javaScript 都是运行在一个单一主线程上的，在同一时间内只能做一件事情。随着 Web 业务不断复杂，我们逐渐在 js 中加了很多耗资源、耗时间的复杂运算过程。 W3C 组织早早的洞察到了这些问题可能会造成的影响，这个时候有个叫 Web Worker 的 API 被造出来了，这个 API 的唯一目的就是解放主线程，Web Worker 是脱离在">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images.xiaozhuanlan.com/photo/2018/d65dff66856921884338c93d7e2dc6a1.png">
+<meta property="article:published_time" content="2017-10-22T14:34:00.000Z">
+<meta property="article:modified_time" content="2020-09-08T13:53:05.720Z">
+<meta property="article:author" content="唐忠正">
+<meta property="article:tag" content="JAVASCRIPT">
+<meta property="article:tag" content="HANDMADE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images.xiaozhuanlan.com/photo/2018/d65dff66856921884338c93d7e2dc6a1.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Service Worker 简介，注册和安装</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/03/28/wechat-sdk/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/10/22/service_work01/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2017/10/22/service_work01/&text=Service Worker 简介，注册和安装"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/10/22/service_work01/&is_video=false&description=Service Worker 简介，注册和安装"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Service Worker 简介，注册和安装&body=Check out this article: http://yoursite.com/2017/10/22/service_work01/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/10/22/service_work01/&name=Service Worker 简介，注册和安装&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Service-Worker-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">Service Worker 是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Service-Worker-%E6%80%8E%E4%B9%88%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">Service Worker 怎么用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">3.</span> <span class="toc-text">生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%80%E5%89%8D%E6%8E%A8-3-%E6%BF%80%E6%B4%BB%E7%8A%B6%E6%80%81%E6%97%B6%EF%BC%8C%E6%B3%A8%E5%86%8C%E4%BA%86%E7%9A%84%E9%A1%B5%E9%9D%A2%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%EF%BC%8C%E9%82%A3%E4%B9%88%E5%93%AA%E4%BA%9B%E6%98%AF%E6%B3%A8%E5%86%8C%E8%BF%87%E7%9A%84%E5%91%A2%EF%BC%9F"><span class="toc-number">4.</span> <span class="toc-text">往前推 3. 激活状态时，注册了的页面可以使用，那么哪些是注册过的呢？</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Service Worker 简介，注册和安装
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2017-10-22T14:34:00.000Z" itemprop="datePublished">2017-10-22</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/HANDMADE/" rel="tag">HANDMADE</a>, <a class="tag-link-link" href="/tags/JAVASCRIPT/" rel="tag">JAVASCRIPT</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="Service-Worker-是什么"><a href="#Service-Worker-是什么" class="headerlink" title="Service Worker 是什么"></a>Service Worker 是什么</h2><p>浏览器中的 javaScript 都是运行在一个单一主线程上的，在同一时间内只能做一件事情。随着 Web 业务不断复杂，我们逐渐在 js 中加了很多耗资源、耗时间的复杂运算过程。</p>
+<p>W3C 组织早早的洞察到了这些问题可能会造成的影响，这个时候有个叫 Web Worker 的 API 被造出来了，这个 API 的唯一目的就是解放主线程，Web Worker 是脱离在主线程之外的，将一些复杂的耗时的活交给它干，完成后通过 postMessage 方法告诉主线程，而主线程通过 onMessage 方法得到 Web Worker 的结果反馈。</p>
+<p>一切问题好像是解决了，但 Web Worker 是临时的，每次做的事情的结果还不能被持久存下来，如果下次有同样的复杂操作，还得费时间的重新来一遍。那我们能不能有一个 Worker 是一直持久存在的，并且随时准备接受主线程的命令呢？基于这样的需求推出了最初版本的 Service Worker ，Service Worker 在 Web Worker 的基础上加上了持久离线缓存能力。</p>
+<p>总之 <strong>Service Worker 是浏览器开启的另一个线程，在这个线程中可以对请求进行处理拦截，并且将资源缓存起来。</strong></p>
+<h2 id="Service-Worker-怎么用"><a href="#Service-Worker-怎么用" class="headerlink" title="Service Worker 怎么用"></a>Service Worker 怎么用</h2><p>Service Worker 要求 HTTPS 的环境，当然一般浏览器允许调试 Service Worker 的时候 host 为 localhost 或者 127.0.0.1 也是 ok 的。<br>可以用 parcel 或者 live-server 来开一个 http 服务器。<br>Service Worker 中是不能不可以有同步操作的，所以 localstorage 不可以用。<br>同时，Service Worker 中还不能对 DOM 进行操作。</p>
+<p>先上代码：<br>index.html</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width, initial-scale=1.0&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;X-UA-Compatible&quot;</span> <span class="attr">content</span>=<span class="string">&quot;ie=edge&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">        hello</span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;divId&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;./serviceWork.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>serviveWork.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="string">&quot;serviceWorker&quot;</span> <span class="keyword">in</span> navigator) &#123;</span><br><span class="line">    <span class="comment">//判断浏览器是否支持</span></span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">&quot;load&quot;</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// window在加载的时候来注册“sw.js”这个文件。这个文件就是serviceWorker</span></span><br><span class="line">        navigator.serviceWorker</span><br><span class="line">            .register(<span class="string">&quot;/sw.js&quot;</span>, &#123; <span class="attr">scope</span>: <span class="string">&quot;/&quot;</span> &#125;)</span><br><span class="line">            .then(<span class="function">(<span class="params">registration</span>) =&gt;</span> &#123;</span><br><span class="line">                <span class="comment">// 返回一个promise</span></span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">&quot;成功！&quot;</span>);</span><br><span class="line">                <span class="built_in">console</span>.log(registration);</span><br><span class="line">            &#125;)</span><br><span class="line">            .catch(<span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">&quot;失败&quot;</span>);</span><br><span class="line">                <span class="built_in">console</span>.log(err);</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>sw.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">this</span>.addEventListener(<span class="string">&quot;install&quot;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 当serviceWorker注册之后，会首先安装一下。再次加载时，如果serviceWorker有更新，则会重新下载安装serviceWorker，否则不会安装。</span></span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;installing&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 这个方法，是当serviceWorker安装成功之后进行调用的。不走安装路程不调用\</span></span><br><span class="line">    event.waitUntil(<span class="built_in">console</span>.log(<span class="string">&quot;installed successed!!&quot;</span>));</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>整个 Service Worker 的流程就是：</strong></p>
+<p>1.在浏览器加载页面时注册 Service Worker;<br>2.Service Worker 判断需不要安装; 3.监听网路请求，执行 workService 线程。</p>
+<h2 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h2><p><img src="https://images.xiaozhuanlan.com/photo/2018/d65dff66856921884338c93d7e2dc6a1.png"></p>
+<ol>
+<li>注册：首先，我们会在主线程中注册 Service Worker，在注册的过程中，浏览器会在后台进行下载和编译解释 serviceWorker。</li>
+<li>安装：注册成功之后，将开始安装，在浏览器需要缺省安装的内容完成之后，event.waitUnitl()中的方法将会执行，直到此方法中的处理完成之后，整个 Service Worker 的安装才算完成。</li>
+<li>激活：当安装成功之后，serviceWorker 处在激活状态，这是注册了 Service Worker 的页面就可以使用 Service Worker 了。</li>
+</ol>
+<h2 id="往前推-3-激活状态时，注册了的页面可以使用，那么哪些是注册过的呢？"><a href="#往前推-3-激活状态时，注册了的页面可以使用，那么哪些是注册过的呢？" class="headerlink" title="往前推 3. 激活状态时，注册了的页面可以使用，那么哪些是注册过的呢？"></a>往前推 3. 激活状态时，注册了的页面可以使用，那么哪些是注册过的呢？</h2><p>并不是在当前 html 中调用过 Service Worker 的页面，而是，看代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="string">&quot;serviceWorker&quot;</span> <span class="keyword">in</span> navigator) &#123;</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">&quot;load&quot;</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// 在注册时，传入了一个scope</span></span><br><span class="line">        navigator.serviceWorker</span><br><span class="line">            .register(<span class="string">&quot;/sw.js&quot;</span>, &#123; <span class="attr">scope</span>: <span class="string">&quot;/&quot;</span> &#125;)</span><br><span class="line">            .then(<span class="function">(<span class="params">registration</span>) =&gt;</span> &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">&quot;成功！&quot;</span>);</span><br><span class="line">                <span class="built_in">console</span>.log(registration);</span><br><span class="line">            &#125;)</span><br><span class="line">            .catch(<span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">&quot;失败&quot;</span>);</span><br><span class="line">                <span class="built_in">console</span>.log(err);</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意代码中，在注册时传入了两个参数，一个是 Service Worker 代码文件路径，另一个是范围。<br>scope： ‘/‘ 同一个域下所有页面都可以使用这个 Service Worker。<br>scope： ‘/a/b’ 在这个域下“a/b/”下的页面都可以使用这个 Service Worker。</p>
+<ol start="2">
+<li><p>安装过程，一般都会在 waitUnitl 中缓存一些文件，只有当这些请求都被缓存之后，才可以安装成功。不然就会一直执行安装过程。当浏览器初次进入页面时，会有一个安装过程，之后再进入页面时不会执行安装的过程。<br>那么如何更新呢？每次进入页面时，浏览器都会进行 Service Worker 的比对，当 sw.js 有变化时，就会重新安装加载。<br>但是，再重新安装 Service Worker 的这一次请求，并不会立刻应用新的 Service Worker，为了保障页面的速度，会继续用上一次安装的 Service Worker。再次刷新页面时，才会应用上一次更新下来的。<br>Service Worker 的特殊之处除了由浏览器触发更新之外，还应用了特殊的缓存策略： 如果该文件已 24 小时没有更新，当再次请求时会强制更新。这意味着最坏情况下 Service Worker 会每天更新一次。</p>
+</li>
+<li><p>可以在 PC 上打开我们的好伙伴 chrome 浏览器, 输入 chrome://inspect/#service-workers ，在这里可以看到已经注册的 serviceWorker</p>
+</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Service-Worker-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">Service Worker 是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Service-Worker-%E6%80%8E%E4%B9%88%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">Service Worker 怎么用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">3.</span> <span class="toc-text">生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%80%E5%89%8D%E6%8E%A8-3-%E6%BF%80%E6%B4%BB%E7%8A%B6%E6%80%81%E6%97%B6%EF%BC%8C%E6%B3%A8%E5%86%8C%E4%BA%86%E7%9A%84%E9%A1%B5%E9%9D%A2%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%EF%BC%8C%E9%82%A3%E4%B9%88%E5%93%AA%E4%BA%9B%E6%98%AF%E6%B3%A8%E5%86%8C%E8%BF%87%E7%9A%84%E5%91%A2%EF%BC%9F"><span class="toc-number">4.</span> <span class="toc-text">往前推 3. 激活状态时，注册了的页面可以使用，那么哪些是注册过的呢？</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/10/22/service_work01/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2017/10/22/service_work01/&text=Service Worker 简介，注册和安装"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/10/22/service_work01/&is_video=false&description=Service Worker 简介，注册和安装"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Service Worker 简介，注册和安装&body=Check out this article: http://yoursite.com/2017/10/22/service_work01/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2017/10/22/service_work01/&title=Service Worker 简介，注册和安装"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/10/22/service_work01/&name=Service Worker 简介，注册和安装&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

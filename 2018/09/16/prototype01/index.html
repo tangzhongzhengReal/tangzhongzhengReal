@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="原型到底是什么，到底是怎么指的？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="原型链与继承 1">
+<meta property="og:url" content="http://yoursite.com/2018/09/16/prototype01/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="原型到底是什么，到底是怎么指的？">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/14/AOPYTK.jpg">
+<meta property="article:published_time" content="2018-09-16T12:41:00.000Z">
+<meta property="article:modified_time" content="2020-09-08T13:50:00.463Z">
+<meta property="article:author" content="唐忠正">
+<meta property="article:tag" content="JAVASCRIPT">
+<meta property="article:tag" content="CLASS">
+<meta property="article:tag" content="PROTOTYPE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/04/14/AOPYTK.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>原型链与继承 1</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/09/22/prototype02/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/08/24/dom_05/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/09/16/prototype01/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/09/16/prototype01/&text=原型链与继承 1"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/09/16/prototype01/&is_video=false&description=原型链与继承 1"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=原型链与继承 1&body=Check out this article: http://yoursite.com/2018/09/16/prototype01/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/09/16/prototype01/&name=原型链与继承 1&description=&lt;p&gt;原型到底是什么，到底是怎么指的？&lt;/p&gt;"><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E7%9A%84%E4%BA%A7%E7%94%9F"><span class="toc-number">1.</span> <span class="toc-text">原型的产生</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#People-%E5%92%8C-People-prototype-%E8%BF%99%E4%B8%AA%E5%AF%B9%E8%B1%A1%E7%9A%84-proo"><span class="toc-number">2.</span> <span class="toc-text">People 和 People.prototype 这个对象的__proo__</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%8D%E4%B9%8B%E4%B8%8A%E5%91%A2%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">再之上呢？</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        原型链与继承 1
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-09-16T12:41:00.000Z" itemprop="datePublished">2018-09-16</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/CLASS/" rel="tag">CLASS</a>, <a class="tag-link-link" href="/tags/JAVASCRIPT/" rel="tag">JAVASCRIPT</a>, <a class="tag-link-link" href="/tags/PROTOTYPE/" rel="tag">PROTOTYPE</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+<div class="article-gallery">
+    
+    <a class="gallery-item" target="_blank" href="https://s2.ax1x.com/2019/04/14/AOPYTK.jpg" rel="gallery_cketkf9hy000i1mnr0uwochja noopener">
+        <img src="https://s2.ax1x.com/2019/04/14/AOPYTK.jpg" itemprop="image" />
+    </a>
+    
+</div>
+
+
+  <div class="content" itemprop="articleBody">
+    <p>原型到底是什么，到底是怎么指的？</p>
+<a id="more"></a>
+
+<h2 id="原型的产生"><a href="#原型的产生" class="headerlink" title="原型的产生"></a>原型的产生</h2><p>我们可以把 JavaScript 中的对象，分成两种类型，一种类型是 function，暂且叫做函数对象，剩下的暂且起名叫实例对象。（叫什么都无所谓。</p>
+<p>每个对象都有一个__proto__属性，下文再讲他的用途。</p>
+<p>而，函数对象，就是每个 function，多出来一个 prototype 属性，这个属性会指向一个特殊的对象。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function People()&#123;</span><br><span class="line">......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>People.prototype.sayhi = function(){}</p>
+<p>当上面这个函数执行的时候，js 引擎会在内存创建两个对象：一个是叫 People 的由 Function 创建的对象——有 Function 的特性可以执行等，另一个是由 Obejct 创建的普通对象 obj——作用是储存信息。</p>
+<p><img src="https://s2.ax1x.com/2019/04/13/AOpKWd.md.jpg"></p>
+<p>People 的 prototype 就执行同时创建的 obj 对象。obj 对象的 constructor 就指向 People。</p>
+<p><code>let marc = new People()</code></p>
+<p>这时候，我们知道，可以直接调用 marc.sayhi()，那么我们是如何找到 sayhi 这个方法的呢？之前我们提到每个实例对象都有<code>__proto__</code>属性，这个属性就指向创建他的 Function 函数的 prototype。</p>
+<p>谁创建谁负责，谁创建了就把他的 prototype 给到实例的<code>__proto__</code><br><img src="https://s2.ax1x.com/2019/04/13/AO9ZXq.jpg"></p>
+<h2 id="People-和-People-prototype-这个对象的-proo"><a href="#People-和-People-prototype-这个对象的-proo" class="headerlink" title="People 和 People.prototype 这个对象的__proo__"></a>People 和 People.prototype 这个对象的<code>__proo__</code></h2><p>上面我们说过 People 是由 Function 这个类创建的，那么 People<code>.__proto__</code>就是指向 Function.prototype<br>另外的那个 obj 呢，是由 Object 创建的，那么 People.prototype.<code>.__proto__</code>就指向 Object.prototype</p>
+<p><img src="https://s2.ax1x.com/2019/04/14/AOC4Z6.jpg"></p>
+<h2 id="再之上呢？"><a href="#再之上呢？" class="headerlink" title="再之上呢？"></a>再之上呢？</h2><p>Function 和 Object 的原型之间的关系，比较特殊，<br><img src="https://s2.ax1x.com/2019/04/14/AOPYTK.jpg"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Function是创建函数的创世函数，所以没人创建他，就指向自己咯</span><br><span class="line">Function.__proto__ &#x3D;&#x3D;&#x3D; Function.prototype</span><br><span class="line">Function.prototype.__proto__ 和别人一样，还是Object创建的。</span><br><span class="line"></span><br><span class="line">Object的是Function创建的，所以</span><br><span class="line">Object.__proto__ &#x3D;&#x3D;&#x3D; Function.prototype</span><br><span class="line">Object的prototype创建时还没有Object这个类，也不能循环引用，就写成null啦</span><br><span class="line">Object.prototype.__proto__ &#x3D;&#x3D;&#x3D; null</span><br></pre></td></tr></table></figure>
+
+<p>以上代码里的解释都是瞎猜。以上在实际编写代码时应该用不到，了解即可。<br>之后我们所有的函数都是 Function 创建的，所以函数的<code>__proto__</code>都是指向 Function.prototype，函数的<code>__proto__</code>就没有什么意义，只关注函数的 prototype 和实例的<code>__proto__</code>就好啦。</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E7%9A%84%E4%BA%A7%E7%94%9F"><span class="toc-number">1.</span> <span class="toc-text">原型的产生</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#People-%E5%92%8C-People-prototype-%E8%BF%99%E4%B8%AA%E5%AF%B9%E8%B1%A1%E7%9A%84-proo"><span class="toc-number">2.</span> <span class="toc-text">People 和 People.prototype 这个对象的__proo__</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%8D%E4%B9%8B%E4%B8%8A%E5%91%A2%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">再之上呢？</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/09/16/prototype01/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/09/16/prototype01/&text=原型链与继承 1"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/09/16/prototype01/&is_video=false&description=原型链与继承 1"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=原型链与继承 1&body=Check out this article: http://yoursite.com/2018/09/16/prototype01/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/09/16/prototype01/&title=原型链与继承 1"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/09/16/prototype01/&name=原型链与继承 1&description=&lt;p&gt;原型到底是什么，到底是怎么指的？&lt;/p&gt;"><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

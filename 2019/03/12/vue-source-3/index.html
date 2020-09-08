@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="几乎所有 JS 框架或插件的编写都有一个类似的模式，即向全局输出一个类或者说构造函数，通过创建实例来使用这个类的公开方法，或者使用类的静态全局方法辅助实现功能。相信精通 Jquery 或编写过 Jquery 插件的开发者会对这个模式非常熟悉。Vue.js 也如出一辙，只是一开始接触这个框架的时候对它所能实现的功能的感叹盖过了它也不过是一个内容较为丰富和精致的大型类的本质。 核心类Vue 的核心类的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 源码探究-核心类的实现">
+<meta property="og:url" content="http://yoursite.com/2019/03/12/vue-source-3/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="几乎所有 JS 框架或插件的编写都有一个类似的模式，即向全局输出一个类或者说构造函数，通过创建实例来使用这个类的公开方法，或者使用类的静态全局方法辅助实现功能。相信精通 Jquery 或编写过 Jquery 插件的开发者会对这个模式非常熟悉。Vue.js 也如出一辙，只是一开始接触这个框架的时候对它所能实现的功能的感叹盖过了它也不过是一个内容较为丰富和精致的大型类的本质。 核心类Vue 的核心类的">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-03-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-09-05T14:57:15.216Z">
+<meta property="article:author" content="唐忠正">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Vue 源码探究-核心类的实现</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/03/13/vue-source-4/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/03/11/vue-source-2/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/12/vue-source-3/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/12/vue-source-3/&text=Vue 源码探究-核心类的实现"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/12/vue-source-3/&is_video=false&description=Vue 源码探究-核心类的实现"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-核心类的实现&body=Check out this article: http://yoursite.com/2019/03/12/vue-source-3/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/12/vue-source-3/&name=Vue 源码探究-核心类的实现&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">核心类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">初始化的过程</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Vue 源码探究-核心类的实现
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-03-11T16:00:00.000Z" itemprop="datePublished">2019-03-12</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>几乎所有 JS 框架或插件的编写都有一个类似的模式，即向全局输出一个类或者说构造函数，通过创建实例来使用这个类的公开方法，或者使用类的静态全局方法辅助实现功能。相信精通 Jquery 或编写过 Jquery 插件的开发者会对这个模式非常熟悉。Vue.js 也如出一辙，只是一开始接触这个框架的时候对它所能实现的功能的感叹盖过了它也不过是一个内容较为丰富和精致的大型类的本质。</p>
+<h2 id="核心类"><a href="#核心类" class="headerlink" title="核心类"></a>核心类</h2><p>Vue 的核心类的构建文件，代码非常简单，就是一串定义构造函数的基础代码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 定义Vue构造函数，形参options</span><br><span class="line">function Vue (options) &#123;</span><br><span class="line">  &#x2F;&#x2F; 安全性判断，如果不是生产环境且不是Vue的实例，在控制台输出警告</span><br><span class="line">  if (process.env.NODE_ENV !&#x3D;&#x3D; &#39;production&#39; &amp;&amp; !(this instanceof Vue) &#123;</span><br><span class="line">    warn(&#39;Vue is a constructor and should be called with the &#96;new&#96; keyword&#39;)</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;&#x2F; 满足条件后执行初始化</span><br><span class="line">  this._init(options)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是 Vue 所有功能的实现，这只是一个开始：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 引入初始化混合函数</span><br><span class="line">import &#123; initMixin &#125; from &#39;.&#x2F;init&#39;</span><br><span class="line">&#x2F;&#x2F; 引入状态混合函数</span><br><span class="line">import &#123; stateMixin &#125; from &#39;.&#x2F;state&#39;</span><br><span class="line">&#x2F;&#x2F; 引入视图渲染混合函数</span><br><span class="line">import &#123; renderMixin &#125; from &#39;.&#x2F;render&#39;</span><br><span class="line">&#x2F;&#x2F; 引入事件混合函数</span><br><span class="line">import &#123; eventsMixin &#125; from &#39;.&#x2F;events&#39;</span><br><span class="line">&#x2F;&#x2F; 引入生命周期混合函数</span><br><span class="line">import &#123; lifecycleMixin &#125; from &#39;.&#x2F;lifecycle&#39;</span><br><span class="line">&#x2F;&#x2F; 引入warn控制台错误提示函数</span><br><span class="line">import &#123; warn &#125; from &#39;..&#x2F;util&#x2F;index&#39;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 挂载初始化方法</span><br><span class="line">initMixin(Vue)</span><br><span class="line">&#x2F;&#x2F; 挂载状态处理相关方法</span><br><span class="line">stateMixin(Vue)</span><br><span class="line">&#x2F;&#x2F; 挂载事件响应相关方法</span><br><span class="line">eventsMixin(Vue)</span><br><span class="line">&#x2F;&#x2F; 挂载生命周期相关方法</span><br><span class="line">lifecycleMixin(Vue)</span><br><span class="line">&#x2F;&#x2F; 挂载视图渲染方法</span><br><span class="line">renderMixin(Vue)</span><br></pre></td></tr></table></figure>
+
+<p>在类构造文件的头部引入了同目录下 5 个文件中的混合函数（我认为这里只是为了要表示把一些方法混入到初始类中才统一用了 Mixin 的后缀，所以不要深究以为这是什么特殊的函数），分别是初始化 initMixin 、状态 stateMixin 、渲染 renderMixin、事件 eventsMixin、生命周期 lifecycleMixin。在文件尾部将这几个函数里包含的具体方法挂载到 Vue 原始类上。</p>
+<p>从各个细化模块，可以看出作者是如何进行逻辑架构分类的。这里又学到了一种模块开发的好方法，将类继承方法按模块独立编写，单独进行挂载实现了可插拔的便利性。</p>
+<h2 id="初始化的过程"><a href="#初始化的过程" class="headerlink" title="初始化的过程"></a>初始化的过程</h2><p>下面代码位于 vue/src/core/instance/init.js</p>
+<p>最先为基础类挂载的方法就是_init()，这是唯一在类实例化的过程中执行的函数，位于整个函数栈的最底层，其他的功能将在此方法里初步分化。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 导出ininMixin函数，接收形参Vue，</span><br><span class="line">&#x2F;&#x2F; 使用Flow进行静态类型检查指定为Component类</span><br><span class="line">export function initMixin (Vue: Class&lt;Component&gt;) &#123;</span><br><span class="line">  &#x2F;&#x2F; 在Vue类的原型上挂载_init()方法</span><br><span class="line">  &#x2F;&#x2F; 接收类型为原始对象的options形参，此参数为非必选参数</span><br><span class="line">  Vue.prototype._init &#x3D; function (options?: Object) &#123;</span><br><span class="line">    &#x2F;&#x2F; 将实例对象赋值给vm变量</span><br><span class="line">    &#x2F;&#x2F; 这里会再次进行Component类型检查确保vm接收到的是Vue类的实例</span><br><span class="line">    const vm: Component &#x3D; this</span><br><span class="line">    &#x2F;&#x2F; 给实例对象vm定义_uid属性，作为vue实例的唯一标识ID</span><br><span class="line">    &#x2F;&#x2F; uid是在函数外定义的变量，从0开始增量赋值</span><br><span class="line">    &#x2F;&#x2F; a uid</span><br><span class="line">    vm._uid &#x3D; uid++</span><br><span class="line">    &#x2F;&#x2F; 定义startTag、endTag变量</span><br><span class="line">    let startTag, endTag</span><br><span class="line">    &#x2F;&#x2F; 注释的意思是代码覆盖率检测工具istanbul会忽略if分支</span><br><span class="line">    &#x2F;&#x2F; 因为下面代码是专为性能分析使用的，以后都不做分析</span><br><span class="line">    &#x2F;* istanbul ignore if *&#x2F;</span><br><span class="line">    &#x2F;&#x2F; 非生产环境且进行性能分析的时候执行以下代码</span><br><span class="line">    if (process.env.NODE_ENV !&#x3D;&#x3D; &#39;production&#39; &amp;&amp; config.performance &amp;&amp; mark) &#123;</span><br><span class="line">      startTag &#x3D; &#96;vue-perf-start:$&#123;vm._uid&#125;&#96;</span><br><span class="line">      endTag &#x3D; &#96;vue-perf-end:$&#123;vm._uid&#125;&#96;</span><br><span class="line">      &#x2F;&#x2F; mark是进行性能分析的工具函数，目前可忽略</span><br><span class="line">      mark(startTag)</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 给vm设置一个_isVue属性作为标记，避免被观察</span><br><span class="line">    &#x2F;&#x2F; 猜想可能是之后观察者进行监视的时候会忽略掉有这个标记的对象</span><br><span class="line">    &#x2F;&#x2F; 具体原因待以后分析</span><br><span class="line">    &#x2F;&#x2F; a flag to avoid this being observed</span><br><span class="line">    vm._isVue &#x3D; true</span><br><span class="line">    &#x2F;&#x2F; 合并options对象</span><br><span class="line">    &#x2F;&#x2F; merge options</span><br><span class="line">    &#x2F;&#x2F; 如果是内部组件则执行初始化内部组件函数</span><br><span class="line">    &#x2F;&#x2F; 这里特意区分出内部定义的组件，是为了进行特别处理提升优化</span><br><span class="line">    if (options &amp;&amp; options._isComponent) &#123;</span><br><span class="line">      &#x2F;&#x2F; optimize internal component instantiation</span><br><span class="line">      &#x2F;&#x2F; since dynamic options merging is pretty slow, and none of the</span><br><span class="line">      &#x2F;&#x2F; internal component options needs special treatment.</span><br><span class="line">      initInternalComponent(vm, options)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      &#x2F;&#x2F; 否则执行合并options函数，并赋值给vm的公共属性</span><br><span class="line">      &#x2F;&#x2F; 在这里的合并函数主要是解决与继承自父类的配置对象的合并</span><br><span class="line">      vm.$options &#x3D; mergeOptions(</span><br><span class="line">        resolveConstructorOptions(vm.constructor),</span><br><span class="line">        options || &#123;&#125;,</span><br><span class="line">        vm</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 忽略代码覆盖，在非生产环境初始化代理</span><br><span class="line">    &#x2F;* istanbul ignore else *&#x2F;</span><br><span class="line">    if (process.env.NODE_ENV !&#x3D;&#x3D; &#39;production&#39;) &#123;</span><br><span class="line">      initProxy(vm)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      vm._renderProxy &#x3D; vm</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; expose real self</span><br><span class="line">    &#x2F;&#x2F; 暴露实例对象</span><br><span class="line">    vm._self &#x3D; vm</span><br><span class="line">    &#x2F;&#x2F; 初始化实例的生命周期相关属性</span><br><span class="line">    initLifecycle(vm)</span><br><span class="line">    &#x2F;&#x2F; 初始化事件相关属性和监听功能</span><br><span class="line">    initEvents(vm)</span><br><span class="line">    &#x2F;&#x2F; 初始化渲染相关属性和功能</span><br><span class="line">    initRender(vm)</span><br><span class="line">    &#x2F;&#x2F; 调用生命周期钩子函数beforeCreate</span><br><span class="line">    callHook(vm, &#39;beforeCreate&#39;)</span><br><span class="line">    &#x2F;&#x2F; 初始化父组件注入属性</span><br><span class="line">    initInjections(vm) &#x2F;&#x2F; resolve injections before data&#x2F;props</span><br><span class="line">    &#x2F;&#x2F; 初始化状态相关属性和功能</span><br><span class="line">    initState(vm)</span><br><span class="line">    &#x2F;&#x2F; 初始化子组件属性提供器</span><br><span class="line">    initProvide(vm) &#x2F;&#x2F; resolve provide after data&#x2F;props</span><br><span class="line">    &#x2F;&#x2F; 调用生命周期钩子函数created</span><br><span class="line">    callHook(vm, &#39;created&#39;)</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 性能检测代码</span><br><span class="line">    &#x2F;* istanbul ignore if *&#x2F;</span><br><span class="line">    if (process.env.NODE_ENV !&#x3D;&#x3D; &#39;production&#39; &amp;&amp; config.performance &amp;&amp; mark) &#123;</span><br><span class="line">      vm._name &#x3D; formatComponentName(vm, false)</span><br><span class="line">      mark(endTag)</span><br><span class="line">      measure(&#96;vue $&#123;vm._name&#125; init&#96;, startTag, endTag)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 执行DOM元素挂载函数</span><br><span class="line">    if (vm.$options.el) &#123;</span><br><span class="line">      vm.$mount(vm.$options.el)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>初始化函数内容不多，主要做了这么几件事：</p>
+<p>整理 options 配置对象<br>开始进入 Vue 实例的生命周期进程，并在生命周期相应阶段初始化实例属性和方法<br>将初始化好的对象挂载到 Dom 元素上，继续生命周期的运行</p>
+<p>这部分代码已经完整地展示出了将 Vue 实例对象挂载到 DOM 元素上并执行渲染的大半程生命周期的进程，在此之后就是视图的交互过程，直到实例对象被销毁。后半段代码清晰地呈现了生命周期中各个功能的初始化顺序，也就是那张著名的生命周期图示的对应代码。<br>各个生命周期的初始化函数内容比较丰富，决定在另一个文档中做一个单独讨论类初始化函数详情</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">核心类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">初始化的过程</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/12/vue-source-3/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/12/vue-source-3/&text=Vue 源码探究-核心类的实现"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/12/vue-source-3/&is_video=false&description=Vue 源码探究-核心类的实现"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-核心类的实现&body=Check out this article: http://yoursite.com/2019/03/12/vue-source-3/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/12/vue-source-3/&title=Vue 源码探究-核心类的实现"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/12/vue-source-3/&name=Vue 源码探究-核心类的实现&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

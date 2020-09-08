@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="初步探索完了核心类的实现之后，接下来就要开始深入到 Vue 实现的具体功能部分了。在所有的功能开始运行之前，要来理解一下 Vue 的生命周期，在初始化函数中所有功能模块绑定到 Vue 的核心类上之前，最先开始执行了一个初始化生命周期的函数 initLifecycle(vm)，先来看看这个函数做了些什么。 生命周期初始化属性12345678910111213141516171819202122232">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 源码探究-生命周期">
+<meta property="og:url" content="http://yoursite.com/2019/03/22/vue-source-5/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="初步探索完了核心类的实现之后，接下来就要开始深入到 Vue 实现的具体功能部分了。在所有的功能开始运行之前，要来理解一下 Vue 的生命周期，在初始化函数中所有功能模块绑定到 Vue 的核心类上之前，最先开始执行了一个初始化生命周期的函数 initLifecycle(vm)，先来看看这个函数做了些什么。 生命周期初始化属性12345678910111213141516171819202122232">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-03-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-09-05T15:19:32.924Z">
+<meta property="article:author" content="唐忠正">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Vue 源码探究-生命周期</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/03/23/vue-source-6/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/03/13/vue-source-4/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/22/vue-source-5/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/22/vue-source-5/&text=Vue 源码探究-生命周期"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/22/vue-source-5/&is_video=false&description=Vue 源码探究-生命周期"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-生命周期&body=Check out this article: http://yoursite.com/2019/03/22/vue-source-5/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/22/vue-source-5/&name=Vue 源码探究-生命周期&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%88%9D%E5%A7%8B%E5%8C%96%E5%B1%9E%E6%80%A7"><span class="toc-number">1.</span> <span class="toc-text">生命周期初始化属性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%88%9D%E5%A7%8B%E5%8C%96%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">生命周期初始化方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A7%81%E6%9C%89%E6%96%B9%E6%B3%95-update"><span class="toc-number">2.1.</span> <span class="toc-text">私有方法 _update</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AC%E7%94%A8%E6%96%B9%E6%B3%95-forceUpdate"><span class="toc-number">2.2.</span> <span class="toc-text">公用方法 $forceUpdate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AC%E7%94%A8%E6%96%B9%E6%B3%95-destroy"><span class="toc-number">2.3.</span> <span class="toc-text">公用方法 $destroy</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">生命周期过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98beforeCreate%E2%80%99"><span class="toc-number">3.1.</span> <span class="toc-text">callHook(vm, ‘beforeCreate’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98created%E2%80%99"><span class="toc-number">3.2.</span> <span class="toc-text">callHook(vm, ‘created’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98beforeMount%E2%80%99"><span class="toc-number">3.3.</span> <span class="toc-text">callHook(vm, ‘beforeMount’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98mounted%E2%80%99"><span class="toc-number">3.4.</span> <span class="toc-text">callHook(vm, ‘mounted’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98beforeUpdate%E2%80%99"><span class="toc-number">3.5.</span> <span class="toc-text">callHook(vm, ‘beforeUpdate’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98updated%E2%80%99"><span class="toc-number">3.6.</span> <span class="toc-text">callHook(vm, ‘updated’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98activated%E2%80%99-%E5%92%8C-callHook-vm-%E2%80%98deactivated%E2%80%99"><span class="toc-number">3.7.</span> <span class="toc-text">callHook(vm, ‘activated’) 和 callHook(vm, ‘deactivated’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98beforeDestroy%E2%80%99-%E5%92%8C-callHook-vm-%E2%80%98destroyed%E2%80%99"><span class="toc-number">3.8.</span> <span class="toc-text">callHook(vm, ‘beforeDestroy’) 和 callHook(vm, ‘destroyed’)</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Vue 源码探究-生命周期
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-03-21T16:00:00.000Z" itemprop="datePublished">2019-03-22</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>初步探索完了核心类的实现之后，接下来就要开始深入到 Vue 实现的具体功能部分了。在所有的功能开始运行之前，要来理解一下 Vue 的生命周期，在初始化函数中所有功能模块绑定到 Vue 的核心类上之前，最先开始执行了一个初始化生命周期的函数 initLifecycle(vm)，先来看看这个函数做了些什么。</p>
+<h2 id="生命周期初始化属性"><a href="#生命周期初始化属性" class="headerlink" title="生命周期初始化属性"></a>生命周期初始化属性</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 导出initLifecycle函数，接受一个Component类型的vm参数</span><br><span class="line">export function initLifecycle (vm: Component) &#123;</span><br><span class="line">  &#x2F;&#x2F; 获取实例的$options属性，赋值为options变量</span><br><span class="line">  const options &#x3D; vm.$options</span><br><span class="line"></span><br><span class="line"> &#x2F;&#x2F; 找到最上层非抽象父级</span><br><span class="line">  &#x2F;&#x2F; locate first non-abstract parent</span><br><span class="line">  &#x2F;&#x2F; 首先找到第一个父级</span><br><span class="line">  let parent &#x3D; options.parent</span><br><span class="line">  &#x2F;&#x2F; 判断是否存在且非抽象</span><br><span class="line">  if (parent &amp;&amp; !options.abstract) &#123;</span><br><span class="line">    &#x2F;&#x2F; 遍历寻找最外层的非抽象父级</span><br><span class="line">    while (parent.$options.abstract &amp;&amp; parent.$parent) &#123;</span><br><span class="line">      parent &#x3D; parent.$parent</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 将实例添加到最外层非抽象父级的子组件中</span><br><span class="line">    parent.$children.push(vm)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 初始化实例的公共属性</span><br><span class="line">  &#x2F;&#x2F; 设置父级属性，如果之前的代码未找到父级，则vm.$parent为undefined</span><br><span class="line">  vm.$parent &#x3D; parent</span><br><span class="line">  &#x2F;&#x2F; 设置根属性，没有父级则为实例对象自身</span><br><span class="line">  vm.$root &#x3D; parent ? parent.$root : vm</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 初始化$children和$refs属性</span><br><span class="line">  &#x2F;&#x2F; vm.$children是子组件的数组集合</span><br><span class="line">  &#x2F;&#x2F; vm.$refs是指定引用名称的组件对象集合</span><br><span class="line">  vm.$children &#x3D; []</span><br><span class="line">  vm.$refs &#x3D; &#123;&#125;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 初始化一些私有属性</span><br><span class="line">  &#x2F;&#x2F; 初始化watcher</span><br><span class="line">  vm._watcher &#x3D; null</span><br><span class="line">  &#x2F;&#x2F; _inactive和_directInactive是判断激活状态的属性</span><br><span class="line">  vm._inactive &#x3D; null</span><br><span class="line">  vm._directInactive &#x3D; false</span><br><span class="line">  &#x2F;&#x2F; 生命周期相关的私有属性</span><br><span class="line">  vm._isMounted &#x3D; false</span><br><span class="line">  vm._isDestroyed &#x3D; false</span><br><span class="line">  vm._isBeingDestroyed &#x3D; false</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="生命周期初始化方法"><a href="#生命周期初始化方法" class="headerlink" title="生命周期初始化方法"></a>生命周期初始化方法</h2><p>生命周期的开始除了设置了相关属性的初始值之外，还为类原型对象挂载了一些方法，包括私有的更新组件的方法和公用的生命周期相关的方法。这些方法都包含在 lifecycleMixin 函数中，还记得这也是在定义核心类之后执行的那些函数之一，也来看看它的内容。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 导出lifecycleMixin函数，接收形参Vue，</span><br><span class="line">&#x2F;&#x2F; 使用Flow进行静态类型检查指定为Component类</span><br><span class="line">export function lifecycleMixin (Vue: Class&lt;Component&gt;) &#123;</span><br><span class="line">  &#x2F;&#x2F; 为Vue原型对象挂载_update私有方法</span><br><span class="line">  &#x2F;&#x2F; 接收vnode虚拟节点类型参数和一个可选的布尔值hydrating</span><br><span class="line">  Vue.prototype._update &#x3D; function (vnode: VNode, hydrating?: boolean) &#123;</span><br><span class="line">    &#x2F;&#x2F; 定义实例变量</span><br><span class="line">    const vm: Component &#x3D; this</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 下面三条赋值操作主要是为了存储属性</span><br><span class="line">    &#x2F;&#x2F; 实例的$el属性赋值给prevEl变量，这是新传入的实例挂载元素</span><br><span class="line">    const prevEl &#x3D; vm.$el</span><br><span class="line">    &#x2F;&#x2F; 实例的_vnode属性赋值给prevVnode变量，储存的旧虚拟节点</span><br><span class="line">    const prevVnode &#x3D; vm._vnode</span><br><span class="line">    &#x2F;&#x2F; 将activeInstance赋值给prevActiveInstance变量，激活实例</span><br><span class="line">    &#x2F;&#x2F; activeInstance初始为null</span><br><span class="line">    const prevActiveInstance &#x3D; activeInstance</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 下面是针对新属性的赋值</span><br><span class="line">    &#x2F;&#x2F; 将新实例设置为activeInstance</span><br><span class="line">    activeInstance &#x3D; vm</span><br><span class="line">    &#x2F;&#x2F; 将传入的vnode赋值给实例的_vnode属性</span><br><span class="line">    &#x2F;&#x2F; vnode是新生成的虚拟节点数，这里把它储存起来覆盖</span><br><span class="line">    vm._vnode &#x3D; vnode</span><br><span class="line">    &#x2F;&#x2F; 下面使用到的Vue.prototype .__ patch__方法是在运行时里注入的</span><br><span class="line">    &#x2F;&#x2F; 根据运行平台的不同定义</span><br><span class="line">    &#x2F;&#x2F; Vue.prototype.__patch__ is injected in entry points</span><br><span class="line">    &#x2F;&#x2F; based on the rendering backend used.</span><br><span class="line">    &#x2F;&#x2F; 如果prevVnode属性不存在说明是新创建实例</span><br><span class="line">    &#x2F;&#x2F; 执行实例属性$el的初始化渲染，否则更新节点</span><br><span class="line">    if (!prevVnode) &#123;</span><br><span class="line">      &#x2F;&#x2F; 如果旧的虚拟节点不存在则调用patch方法</span><br><span class="line">      &#x2F;&#x2F; 传入挂载的真实DOM节点和新生成的虚拟节点</span><br><span class="line">      &#x2F;&#x2F; initial render</span><br><span class="line">      vm.$el &#x3D; vm.__patch__(vm.$el, vnode, hydrating, false &#x2F;* removeOnly *&#x2F;)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      &#x2F;&#x2F; 否则执行虚拟节点更新操作，传入的是新旧虚拟节点</span><br><span class="line">      &#x2F;&#x2F; updates</span><br><span class="line">      vm.$el &#x3D; vm.__patch__(prevVnode, vnode)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 将之前的激活实例又赋值给activeInstance</span><br><span class="line">    activeInstance &#x3D; prevActiveInstance</span><br><span class="line">    &#x2F;&#x2F; 更新__vue__属性的引用</span><br><span class="line">    &#x2F;&#x2F; update __vue__ reference</span><br><span class="line">    &#x2F;&#x2F; 如果存在旧元素则设置它的__vue__引用为null</span><br><span class="line">    if (prevEl) &#123;</span><br><span class="line">      prevEl.__vue__ &#x3D; null</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 如果实例的$el属性存在，设置它的__vue__引用为该实例</span><br><span class="line">    if (vm.$el) &#123;</span><br><span class="line">      vm.$el.__vue__ &#x3D; vm</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 如果父节点是一个高阶组件，也更新它的元素节点</span><br><span class="line">    &#x2F;&#x2F; if parent is an HOC, update its $el as well</span><br><span class="line">    if (vm.$vnode &amp;&amp; vm.$parent &amp;&amp; vm.$vnode &#x3D;&#x3D;&#x3D; vm.$parent._vnode) &#123;</span><br><span class="line">      vm.$parent.$el &#x3D; vm.$el</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 更新的钩子由调度器调用，以确保在父更新的钩子中更新子项。</span><br><span class="line">    &#x2F;&#x2F; updated hook is called by the scheduler to ensure that children are</span><br><span class="line">    &#x2F;&#x2F; updated in a parent&#39;s updated hook.</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 为Vue实例挂载$forceUpdate方法，实现强制更新</span><br><span class="line">  Vue.prototype.$forceUpdate &#x3D; function () &#123;</span><br><span class="line">    const vm: Component &#x3D; this</span><br><span class="line">    if (vm._watcher) &#123;</span><br><span class="line">      vm._watcher.update()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 为Vue实例挂载$destroy方法</span><br><span class="line">  Vue.prototype.$destroy &#x3D; function () &#123;</span><br><span class="line">    &#x2F;&#x2F; 定义实例变量</span><br><span class="line">    const vm: Component &#x3D; this</span><br><span class="line">    &#x2F;&#x2F; 如果实例已经在销毁中，则返回</span><br><span class="line">    if (vm._isBeingDestroyed) &#123;</span><br><span class="line">      return</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 调用beforeDestroy钩子</span><br><span class="line">    callHook(vm, &#39;beforeDestroy&#39;)</span><br><span class="line">    &#x2F;&#x2F; 给实例设置正在销毁中的标志</span><br><span class="line">    vm._isBeingDestroyed &#x3D; true</span><br><span class="line">    &#x2F;&#x2F; 从父组件中移除自身</span><br><span class="line">    &#x2F;&#x2F; remove self from parent</span><br><span class="line">    const parent &#x3D; vm.$parent</span><br><span class="line">    &#x2F;&#x2F; 如果非抽象父级组件存在且没有在销毁中，则从父组件中移除实例</span><br><span class="line">    if (parent &amp;&amp; !parent._isBeingDestroyed &amp;&amp; !vm.$options.abstract) &#123;</span><br><span class="line">      remove(parent.$children, vm)</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 销毁所有观察器</span><br><span class="line">    &#x2F;&#x2F; teardown watchers</span><br><span class="line">    if (vm._watcher) &#123;</span><br><span class="line">      vm._watcher.teardown()</span><br><span class="line">    &#125;</span><br><span class="line">    let i &#x3D; vm._watchers.length</span><br><span class="line">    while (i--) &#123;</span><br><span class="line">      vm._watchers[i].teardown()</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 移除对象引用</span><br><span class="line">    &#x2F;&#x2F; remove reference from data ob</span><br><span class="line">    &#x2F;&#x2F; frozen object may not have observer.</span><br><span class="line">    if (vm._data.__ob__) &#123;</span><br><span class="line">      vm._data.__ob__.vmCount--</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 调用最后的钩子</span><br><span class="line">    &#x2F;&#x2F; call the last hook...</span><br><span class="line">    &#x2F;&#x2F; 设置实例的已销毁标志</span><br><span class="line">    vm._isDestroyed &#x3D; true</span><br><span class="line">    &#x2F;&#x2F; 调用当前渲染树上的销毁钩子</span><br><span class="line">    &#x2F;&#x2F; invoke destroy hooks on current rendered tree</span><br><span class="line">    vm.__patch__(vm._vnode, null)</span><br><span class="line">    &#x2F;&#x2F; 触发销毁钩子</span><br><span class="line">    &#x2F;&#x2F; fire destroyed hook</span><br><span class="line">    callHook(vm, &#39;destroyed&#39;)</span><br><span class="line">    &#x2F;&#x2F; turn off all instance listeners.</span><br><span class="line">    &#x2F;&#x2F; 清除所有监听事件</span><br><span class="line">    vm.$off()</span><br><span class="line">    &#x2F;&#x2F; 移除实例引用</span><br><span class="line">    &#x2F;&#x2F; remove __vue__ reference</span><br><span class="line">    if (vm.$el) &#123;</span><br><span class="line">      vm.$el.__vue__ &#x3D; null</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 释放循环引用</span><br><span class="line">    &#x2F;&#x2F; release circular reference (#6759)</span><br><span class="line">    if (vm.$vnode) &#123;</span><br><span class="line">      vm.$vnode.parent &#x3D; null</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>lifecycleMixin 函数实现了三个原型继承方法：</p>
+<h3 id="私有方法-update"><a href="#私有方法-update" class="headerlink" title="私有方法 _update"></a>私有方法 _update</h3><p>这个函数用于更新组件，实现数据和元素节点的无刷新更新，涉及到虚拟节点相关的一些内容，具体实现留给未来研究虚拟节点和数据更新时再深入探索。</p>
+<h3 id="公用方法-forceUpdate"><a href="#公用方法-forceUpdate" class="headerlink" title="公用方法 $forceUpdate"></a>公用方法 $forceUpdate</h3><p>实现组件强制刷新，这个方法是从实例上设置的 watcher 对象方法中引用而来，在生命周期初始化的时候为实例设置了一个私有的_watcher 属性，在观察者系统的功能模块中具体实现了这一对象，也放到以后在去深入了解。这里只要知道可以调用这个共有的 API 实现手动更新组件。</p>
+<h3 id="公用方法-destroy"><a href="#公用方法-destroy" class="headerlink" title="公用方法 $destroy"></a>公用方法 $destroy</h3><p>实例销毁方法。在刚开始讨论生命周期的开启时，就了解到了这个销毁 Vue 实例组件的方法，凡事都有始有终，从这里可以明白无误的认识到，Vue 实例是一个生命过程。</p>
+<h2 id="生命周期过程"><a href="#生命周期过程" class="headerlink" title="生命周期过程"></a>生命周期过程</h2><p>对照生命周期图示中呈现的各种钩子函数，从源码总结了他们的调用时机，顺便又学习一遍钩子执行的线路：</p>
+<h3 id="callHook-vm-‘beforeCreate’"><a href="#callHook-vm-‘beforeCreate’" class="headerlink" title="callHook(vm, ‘beforeCreate’)"></a>callHook(vm, ‘beforeCreate’)</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">initLifecycle(vm)</span><br><span class="line">initEvents(vm)</span><br><span class="line">initRender(vm)</span><br><span class="line">callHook(vm, &#39;beforeCreate&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>从 new Vue() 创建实例开始 ，在执行 _init() 方法时开始初始化了生命周期、事件和渲染。紧接着就调用了 beforeCreate 钩子函数。此时与数据相关的属性都还没有初始化 ，所以在这个阶段想要用获取到组件的属性是无法成功的。</p>
+<h3 id="callHook-vm-‘created’"><a href="#callHook-vm-‘created’" class="headerlink" title="callHook(vm, ‘created’)"></a>callHook(vm, ‘created’)</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">initInjections(vm) &#x2F;&#x2F; resolve injections before data&#x2F;props</span><br><span class="line">initState(vm)</span><br><span class="line">initProvide(vm) &#x2F;&#x2F; resolve provide after data&#x2F;props</span><br><span class="line">callHook(vm, &#39;created&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>在 beforeCreate 调用后，继续初始化属性注入、状态、子组件属性提供器。然后立即调用 created 钩子，这个时候数据可访问了，但是还没有开始渲染页面，适合一些数据的初始化操作。<br>到这一步之后，就开始进入渲染流程。</p>
+<h3 id="callHook-vm-‘beforeMount’"><a href="#callHook-vm-‘beforeMount’" class="headerlink" title="callHook(vm, ‘beforeMount’)"></a>callHook(vm, ‘beforeMount’)</h3><p>渲染的执行流程稍微复杂一些，实例装载方法 $mount 是根据平台的不同需求而分别定义的，在执行 $mount 方法的时候，开始装载组件，具体内容在 mountComponent 函数中，在此函数的最开始时渲染虚拟节点之前就调用了 beforeMount 钩子，然后开始执行 updateComponent 来渲染组件视图。</p>
+<h3 id="callHook-vm-‘mounted’"><a href="#callHook-vm-‘mounted’" class="headerlink" title="callHook(vm, ‘mounted’)"></a>callHook(vm, ‘mounted’)</h3><p>紧接着上面视图的渲染完成，mounted 钩子被调用。在这个钩子中还调用了内部的插入钩子渲染引用的子组件，这之后就开始处于生命周期的正常运转期。在这个时期内观察器系统开始监控所有的数据更新，进入数据更新并重新渲染视图的循环中。</p>
+<h3 id="callHook-vm-‘beforeUpdate’"><a href="#callHook-vm-‘beforeUpdate’" class="headerlink" title="callHook(vm, ‘beforeUpdate’)"></a>callHook(vm, ‘beforeUpdate’)</h3><p>在观察器的作用下，如果有数据的更新时就会先调用 beforeUpdate 钩子。</p>
+<h3 id="callHook-vm-‘updated’"><a href="#callHook-vm-‘updated’" class="headerlink" title="callHook(vm, ‘updated’)"></a>callHook(vm, ‘updated’)</h3><p>当数据更新并且完成视图渲染后调用 updated 钩子。这个钩子和上面的钩子会一直在生命周期运转期里不断被触发。</p>
+<h3 id="callHook-vm-‘activated’-和-callHook-vm-‘deactivated’"><a href="#callHook-vm-‘activated’-和-callHook-vm-‘deactivated’" class="headerlink" title="callHook(vm, ‘activated’) 和 callHook(vm, ‘deactivated’)"></a>callHook(vm, ‘activated’) 和 callHook(vm, ‘deactivated’)</h3><p>activated 和 deactivated 这两个特殊钩子是在使用 keep-alive 组件的时候才有效。分别在组件被激活或切换到其他组件的时候被调用。 使用 keep-alive 模式在切换到不同组件视图的过程中不会进行重新加载，这就意味着其他的钩子函数都不会被调用，如果在离开页面和进入页面的时候执行某些操作，这两个钩子就非常有用。</p>
+<h3 id="callHook-vm-‘beforeDestroy’-和-callHook-vm-‘destroyed’"><a href="#callHook-vm-‘beforeDestroy’-和-callHook-vm-‘destroyed’" class="headerlink" title="callHook(vm, ‘beforeDestroy’) 和 callHook(vm, ‘destroyed’)"></a>callHook(vm, ‘beforeDestroy’) 和 callHook(vm, ‘destroyed’)</h3><p>beforeDestroy 和 destroyed 钩子与上面的两个钩子相对应，是在普通模式下会有效的钩子。实例的生命周期的最后阶段就是执行销毁，在销毁之前调用 beforeDestroy。然后清除了所有的数据引用、观察器和事件监听器。最后调用 destroyed 宣告生命周期的完全终止。</p>
+<p>之前看过很多次 Vue 的生命周期图，但在学习源码之前并没有特别深的感触，现在随着探索源码的深入，终于感觉到在慢慢了解这个过程的意义。整个生命周期的构建过程并不是最难的实现部分，但它是整个架构的背后支撑力量，有了生命周期的正常运转，才能一步步地实现接下来要学习的各种功能。</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%88%9D%E5%A7%8B%E5%8C%96%E5%B1%9E%E6%80%A7"><span class="toc-number">1.</span> <span class="toc-text">生命周期初始化属性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%88%9D%E5%A7%8B%E5%8C%96%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">生命周期初始化方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A7%81%E6%9C%89%E6%96%B9%E6%B3%95-update"><span class="toc-number">2.1.</span> <span class="toc-text">私有方法 _update</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AC%E7%94%A8%E6%96%B9%E6%B3%95-forceUpdate"><span class="toc-number">2.2.</span> <span class="toc-text">公用方法 $forceUpdate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AC%E7%94%A8%E6%96%B9%E6%B3%95-destroy"><span class="toc-number">2.3.</span> <span class="toc-text">公用方法 $destroy</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">生命周期过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98beforeCreate%E2%80%99"><span class="toc-number">3.1.</span> <span class="toc-text">callHook(vm, ‘beforeCreate’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98created%E2%80%99"><span class="toc-number">3.2.</span> <span class="toc-text">callHook(vm, ‘created’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98beforeMount%E2%80%99"><span class="toc-number">3.3.</span> <span class="toc-text">callHook(vm, ‘beforeMount’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98mounted%E2%80%99"><span class="toc-number">3.4.</span> <span class="toc-text">callHook(vm, ‘mounted’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98beforeUpdate%E2%80%99"><span class="toc-number">3.5.</span> <span class="toc-text">callHook(vm, ‘beforeUpdate’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98updated%E2%80%99"><span class="toc-number">3.6.</span> <span class="toc-text">callHook(vm, ‘updated’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98activated%E2%80%99-%E5%92%8C-callHook-vm-%E2%80%98deactivated%E2%80%99"><span class="toc-number">3.7.</span> <span class="toc-text">callHook(vm, ‘activated’) 和 callHook(vm, ‘deactivated’)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#callHook-vm-%E2%80%98beforeDestroy%E2%80%99-%E5%92%8C-callHook-vm-%E2%80%98destroyed%E2%80%99"><span class="toc-number">3.8.</span> <span class="toc-text">callHook(vm, ‘beforeDestroy’) 和 callHook(vm, ‘destroyed’)</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/03/22/vue-source-5/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/03/22/vue-source-5/&text=Vue 源码探究-生命周期"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/03/22/vue-source-5/&is_video=false&description=Vue 源码探究-生命周期"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-生命周期&body=Check out this article: http://yoursite.com/2019/03/22/vue-source-5/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/03/22/vue-source-5/&title=Vue 源码探究-生命周期"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/03/22/vue-source-5/&name=Vue 源码探究-生命周期&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Vue 2.0 版本的大整改不仅在于使用功能上的优化和调整，整个代码库也发生了天翻地覆的重组。可见随着使用者的增加与声名传播，Vue 自身的格局发生了很大的突破，特别体现在对 Weex 框架做了内部支持。不管在未来是使用 Weex 或者与 NativeScript 结合做跨平台应用开发，都还是能与 React、Angular 保持三足鼎立的势头。 Vue 的 github 仓库根目录先来大致了解一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 源码探究-源码文件组织">
+<meta property="og:url" content="http://yoursite.com/2019/02/28/vue-source-1/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="Vue 2.0 版本的大整改不仅在于使用功能上的优化和调整，整个代码库也发生了天翻地覆的重组。可见随着使用者的增加与声名传播，Vue 自身的格局发生了很大的突破，特别体现在对 Weex 框架做了内部支持。不管在未来是使用 Weex 或者与 NativeScript 结合做跨平台应用开发，都还是能与 React、Angular 保持三足鼎立的势头。 Vue 的 github 仓库根目录先来大致了解一">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-02-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-09-05T14:57:33.454Z">
+<meta property="article:author" content="唐忠正">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Vue 源码探究-源码文件组织</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/03/11/vue-source-2/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/02/01/vue-resouce01/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/02/28/vue-source-1/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/02/28/vue-source-1/&text=Vue 源码探究-源码文件组织"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/02/28/vue-source-1/&is_video=false&description=Vue 源码探究-源码文件组织"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-源码文件组织&body=Check out this article: http://yoursite.com/2019/02/28/vue-source-1/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/02/28/vue-source-1/&name=Vue 源码探究-源码文件组织&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Vue-%E7%9A%84-github-%E4%BB%93%E5%BA%93%E6%A0%B9%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">Vue 的 github 仓库根目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vue-%E7%9A%84-src-%E6%BA%90%E7%A0%81%E7%9B%AE%E5%BD%95"><span class="toc-number">2.</span> <span class="toc-text">Vue 的 src 源码目录</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Vue 源码探究-源码文件组织
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-02-27T16:00:00.000Z" itemprop="datePublished">2019-02-28</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>Vue 2.0 版本的大整改不仅在于使用功能上的优化和调整，整个代码库也发生了天翻地覆的重组。可见随着使用者的增加与声名传播，Vue 自身的格局发生了很大的突破，特别体现在对 Weex 框架做了内部支持。不管在未来是使用 Weex 或者与 NativeScript 结合做跨平台应用开发，都还是能与 React、Angular 保持三足鼎立的势头。</p>
+<h2 id="Vue-的-github-仓库根目录"><a href="#Vue-的-github-仓库根目录" class="headerlink" title="Vue 的 github 仓库根目录"></a>Vue 的 github 仓库根目录</h2><p>先来大致了解一下整个项目的结构</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">scripts：包含构建相关的脚本和配置文件。作者声明一般开发不需要关注此目录</span><br><span class="line">dist：构建出的不同分发版本，只有发布新版本时才会跟新，开发分支的新特性不会反映在此</span><br><span class="line">flow：包含使用 Flow（静态类型检查工具）声明的类型，供全局使用</span><br><span class="line">packages：包含服务端渲染和模板编译器两种不同的 NPM 包，是提供给不同使用场景使用的</span><br><span class="line">test：包含所有测试代码</span><br><span class="line">src：Vue 的源码，使用 ES6 和 Flow 类型注释编写的</span><br><span class="line">types：使用 TypeScript 定义的类型声明，并且包含了测试文件，不太明白为什么要同时使用两种静态类型检查语言</span><br></pre></td></tr></table></figure>
+
+<p>以下是官方文档未列出说明的文件夹，好奇宝宝抱着刨根问底的决心一并在此列出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.github：项目相关的说明文档，上面的说明文档就在此文件夹</span><br><span class="line">examples：一些示例</span><br><span class="line">.circleci：包含 CircleCI 部署工具的配置文件</span><br><span class="line">benchmark： Benchmark 性能测试相关文件</span><br></pre></td></tr></table></figure>
+
+<p>根目录下的其他配置文件相信大家都心知肚明有什么作用，不在此赘述了。<br>基于以上的大致了解，发现除 flow 和 src 目录外，其他的文件夹主要都是用来服务于 Vue 项目组织和构建的，在源码探究的旅途中可以将他们剔除。由于 flow 文件夹里包含了一些预先定义好的静态类型，是与源码编写相关的，还是需要浏览一下。接下来，继续详细的探索一下 src 源码文件夹的组织结构。</p>
+<h2 id="Vue-的-src-源码目录"><a href="#Vue-的-src-源码目录" class="headerlink" title="Vue 的 src 源码目录"></a>Vue 的 src 源码目录</h2><p>ue 最新版本的源码文件夹下分为 6 个目录 compiler、core、server、platforms、sfc、shared。作者在 CONTRIBUTING.md 也说明了它们的内容，但在其文档中 types 文件夹已经被移出到根目录下了，这里没有修改。<br>Compiler 编译器<br>包含模板到渲染函数编译器的代码。<br>拆分原因：1.0 版本中就把编译器的功能存放在独立文件夹中，2.0 之后的版本进行了调整和优化，可以更好地组织编译器相关功能的代码。<br>编译器由解析器、优化器、代码生成器组成，另外还有生成编译器、指令相关等一些代码。<br>编译器的主要构成部分：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">parser：解析器的作用是将模板转换成元素 AST 对象。</span><br><span class="line">optimizer：优化器负责检测静态抽象树的渲染进行优化。</span><br><span class="line">codegen：代码生成器直接从 AST 对象生成代码字符串。</span><br></pre></td></tr></table></figure>
+
+<p>编译器具体的实现功能在另一篇文章模板编译的实现中进行探讨。</p>
+<p>Core 核心<br>组织与平台无关的通用运行时代码，即与平台解耦，在任何支持 Javascript 运行的环境下都可以运行。<br>拆分原因：随着 2.0 版本区别出了 web 和 weex 跨平台两端的开发支持，在不同平台下的编译和运行时都有区别，所以将核心通用的代码提取到独立文件夹中组织，并且不包含那些将要根据不同平台调整的相关代码，如编译器。<br>核心代码包括 2.0 版本中最基础的代码部分：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Observer：观察者系统，实现监测数据变化的功能。</span><br><span class="line">Vdom：Vue 虚拟节点树，实现虚拟节点的创建和刷新功能。</span><br><span class="line">instance：Vue 类，包含构造函数和原型方法的创建。</span><br><span class="line">Global-API：全局 API。</span><br><span class="line">Components：通用抽象组件。</span><br><span class="line">util：辅助函数。</span><br></pre></td></tr></table></figure>
+
+<p>Platforms 平台<br>平台专有代码存放在这个目录中，以不同的平台组成子目录。<br>拆分原因：2.0 版本后在内部支持与 Weex 框架的融合，与 web 端的应用开发相区分。<br>目前分离了出了两个部分：web 端开发和 weex 框架所涉及跨平台开发，分别包含了一些编译器和运行时的不同代码。</p>
+<p>Server 服务器渲染<br>包含服务端渲染的相关代码。<br>拆分原因：2.0 版本后开发了支持服务端渲染的新功能</p>
+<p>Sfc 单文件组件文件编译<br>这一文件夹目前只包含了一个叫 parser.js 的文件，用来将单文件组件解析为 SFC 描述对象，输出给编译器继而执行模板编译。<br>拆分原因：单独抽离解析 vue 单文件组件的逻辑</p>
+<p>Shared 共享常量和函数<br>Shared 是 2.0 版本之后增加的用来组织共享变量和辅助函数的文件夹，主要从之前的辅助函数文件里抽取出来，在后来的开发中也继续添加了其他函数和常量，从其中包含的 constants.js 和 util.js 两个文件的名称中也能显而易见此文件夹的作用。<br>拆分原因：更好的组织代码</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Vue-%E7%9A%84-github-%E4%BB%93%E5%BA%93%E6%A0%B9%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">Vue 的 github 仓库根目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vue-%E7%9A%84-src-%E6%BA%90%E7%A0%81%E7%9B%AE%E5%BD%95"><span class="toc-number">2.</span> <span class="toc-text">Vue 的 src 源码目录</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/02/28/vue-source-1/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2019/02/28/vue-source-1/&text=Vue 源码探究-源码文件组织"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/02/28/vue-source-1/&is_video=false&description=Vue 源码探究-源码文件组织"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vue 源码探究-源码文件组织&body=Check out this article: http://yoursite.com/2019/02/28/vue-source-1/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2019/02/28/vue-source-1/&title=Vue 源码探究-源码文件组织"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/02/28/vue-source-1/&name=Vue 源码探究-源码文件组织&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

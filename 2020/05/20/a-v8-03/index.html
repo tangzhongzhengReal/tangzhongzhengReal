@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="基础类型使用标记法，有效表示 number 值视频  ECMAScript 标准是使用 64 位双精度来存储数字。 但是通常用的数字都是小整数。如果全部采用 64 位双精度来计算，会变的非常慢。 V8 传递了约 32 位数字来表示所有值，以提高效率。使用最后一位作为标记，以指示值是 Smi（小整数）还是指向对象的指针。剩余的 31 位空间，如果是 31 位及以下的小整数 SMI，剩余空间则存值。如">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JS 中的数据结构在 V8 中的表示">
+<meta property="og:url" content="http://yoursite.com/2020/05/20/a-v8-03/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="基础类型使用标记法，有效表示 number 值视频  ECMAScript 标准是使用 64 位双精度来存储数字。 但是通常用的数字都是小整数。如果全部采用 64 位双精度来计算，会变的非常慢。 V8 传递了约 32 位数字来表示所有值，以提高效率。使用最后一位作为标记，以指示值是 Smi（小整数）还是指向对象的指针。剩余的 31 位空间，如果是 31 位及以下的小整数 SMI，剩余空间则存值。如">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-05-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-09-08T14:10:16.620Z">
+<meta property="article:author" content="唐忠正">
+<meta property="article:tag" content="JAVASCRIPT">
+<meta property="article:tag" content="V8">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>JS 中的数据结构在 V8 中的表示</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/09/01/nuxt-page-cache-with-redis/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/05/02/a-v8-02/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/05/20/a-v8-03/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2020/05/20/a-v8-03/&text=JS 中的数据结构在 V8 中的表示"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/05/20/a-v8-03/&is_video=false&description=JS 中的数据结构在 V8 中的表示"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JS 中的数据结构在 V8 中的表示&body=Check out this article: http://yoursite.com/2020/05/20/a-v8-03/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/05/20/a-v8-03/&name=JS 中的数据结构在 V8 中的表示&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">基础类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%A0%87%E8%AE%B0%E6%B3%95%EF%BC%8C%E6%9C%89%E6%95%88%E8%A1%A8%E7%A4%BA-number-%E5%80%BC"><span class="toc-number">1.1.</span> <span class="toc-text">使用标记法，有效表示 number 值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">1.2.</span> <span class="toc-text">字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Undefined-Boolean"><span class="toc-number">1.3.</span> <span class="toc-text">Undefined Boolean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1"><span class="toc-number">1.4.</span> <span class="toc-text">对象</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        JS 中的数据结构在 V8 中的表示
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2020-05-19T16:00:00.000Z" itemprop="datePublished">2020-05-20</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/JAVASCRIPT/" rel="tag">JAVASCRIPT</a>, <a class="tag-link-link" href="/tags/V8/" rel="tag">V8</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="基础类型"><a href="#基础类型" class="headerlink" title="基础类型"></a>基础类型</h2><h3 id="使用标记法，有效表示-number-值"><a href="#使用标记法，有效表示-number-值" class="headerlink" title="使用标记法，有效表示 number 值"></a>使用标记法，有效表示 number 值</h3><p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=UJPdhx5zTaw&feature=youtu.be&t=15m35s">视频</a></p>
+<ol>
+<li>ECMAScript 标准是使用 64 位双精度来存储数字。</li>
+<li>但是通常用的数字都是小整数。如果全部采用 64 位双精度来计算，会变的非常慢。</li>
+<li>V8 传递了约 32 位数字来表示所有值，以提高效率。使用最后一位作为标记，以指示值是 Smi（小整数）还是指向对象的指针。剩余的 31 位空间，如果是 31 位及以下的小整数 SMI，剩余空间则存值。如果是浮点型，或者数很大，将开一块内存，创建一个 HeapNumber 对象来存储，剩余空间存储值该地址（32 位 CPU）。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">| object pointer              | 1 |</span><br><span class="line"></span><br><span class="line">or</span><br><span class="line"></span><br><span class="line">| 31-bit-signed integer (Smi) | 0 |</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>在 64 位的 CPU 上，有 32 位空间来表示数字，1 位空间作为标记。</li>
+<li>关于 HeapNumber，可以参考这一篇 <a target="_blank" rel="noopener" href="https://www.infoq.cn/article/xiH8eEit1rxiaB6w8XA6">看文吃瓜：React 遭遇 V8 性能崩溃的故事</a>，里面详细讲述了小整数 SMI 和浮点型数转换时带来的问题和原理。</li>
+<li>尽量使用 SMI，因为 SMI 快。定义变量时尽量使用确定的格式，小整数 SMI 和浮点型数转换有一定的性能开销，浮点型数据类型确定后，不能再转为 SMI 了。</li>
+</ol>
+<h3 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h3><ol>
+<li>一般字符串在内存中的表示，高 4 位表示类型，其后四位存储长度，再后四位存储 hash 值，后面存储字符串的值。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Map |Len |Hash|Characters</span><br><span class="line">0123|4567|8901|23.........</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>更完整的字符串所使用的类及操作请看：<a target="_blank" rel="noopener" href="https://juejin.im/entry/6844903493493325832">字符串在 V8 内的表达</a></li>
+</ol>
+<h3 id="Undefined-Boolean"><a href="#Undefined-Boolean" class="headerlink" title="Undefined Boolean"></a>Undefined Boolean</h3><ol>
+<li>和字符串的一般形式类似。</li>
+<li>如果你看了开始的时候，应该对所说的 Map 有一定的印象。Map 就是对这个对象的描述，类似于 AST 过的结构体。</li>
+</ol>
+<h3 id="对象"><a href="#对象" class="headerlink" title="对象"></a>对象</h3><ol>
+<li>看一下对象在内存中的表现形式：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">+-------------------+</span><br><span class="line">|  Object           |    +----&gt; +------------------+     +----&gt;  +------------------+</span><br><span class="line">|-------------------|    |      |  FixedArray      |     |       |  FixedArray      |</span><br><span class="line">|  Map              |    |      |------------------|     |       |------------------|</span><br><span class="line">|-------------------|    |      |  Map             |     |       |  Map             |</span><br><span class="line">  |  Extra Properties |----+      |------------------|     |       |------------------|</span><br><span class="line">|-------------------|           |  Length          |     |       |  Length          |</span><br><span class="line">|  Elements         |------+    |------------------|     |       |------------------|</span><br><span class="line">|-------------------|      |    |  Property &quot;poo&quot;  |     |       |  Property &quot;0&quot;    |</span><br><span class="line">|  Property &quot;foo&quot;   |      |    |------------------|     |       |------------------|</span><br><span class="line">|-------------------|      |    |  Property &quot;baz&quot;  |     |       |  Property &quot;1&quot;    |</span><br><span class="line">|  Property &quot;bar&quot;   |      |    +__________________+     |       +__________________+</span><br><span class="line">+___________________+      |                             |</span><br><span class="line">                           |                             |</span><br><span class="line">                           |                             |</span><br><span class="line">                           +-----------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>这部分建议看一下李兵老师在极客时间上的图解 V8 专栏，里面图示比较简明。</p>
+<ol>
+<li>解释 FixedArray：类似于数组是一块连续的内存。</li>
+<li>上面显示了最常见的优化表示。</li>
+<li>所有块都有一个 Map 属性描述其结构，和前述所讲 Map 是一样的功能及描述。更多 Map 的解释请看 <a target="_blank" rel="noopener" href="http://newhtml.net/v8-object-representation/">V8 之旅：对象表示</a></li>
+<li>V8 中对象并不全是使用 hashtable 来表示的，因为计算 hash 碰撞太慢了，并且在 v8 编译代码时不能很好的优化。所以一般情况下对象是表现为上图所示。</li>
+<li>Elements 用于存储看起来像数组索引的属性，而 Extra Properties 用于存储键为字符串或符号的属性。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">const x &#x3D; &#123;&#125;;</span><br><span class="line">x[1] &#x3D; &#39;bar&#39;;      &#x2F;&#x2F; ← stored in elements</span><br><span class="line">x[&#39;foo&#39;] &#x3D; &#39;bar&#39;;  &#x2F;&#x2F; ← stored in properties</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">基础类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%A0%87%E8%AE%B0%E6%B3%95%EF%BC%8C%E6%9C%89%E6%95%88%E8%A1%A8%E7%A4%BA-number-%E5%80%BC"><span class="toc-number">1.1.</span> <span class="toc-text">使用标记法，有效表示 number 值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">1.2.</span> <span class="toc-text">字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Undefined-Boolean"><span class="toc-number">1.3.</span> <span class="toc-text">Undefined Boolean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1"><span class="toc-number">1.4.</span> <span class="toc-text">对象</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/05/20/a-v8-03/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2020/05/20/a-v8-03/&text=JS 中的数据结构在 V8 中的表示"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/05/20/a-v8-03/&is_video=false&description=JS 中的数据结构在 V8 中的表示"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JS 中的数据结构在 V8 中的表示&body=Check out this article: http://yoursite.com/2020/05/20/a-v8-03/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2020/05/20/a-v8-03/&title=JS 中的数据结构在 V8 中的表示"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/05/20/a-v8-03/&name=JS 中的数据结构在 V8 中的表示&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Attr、Text 和 Comment, Element 上的一些方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DOM 进阶 03">
+<meta property="og:url" content="http://yoursite.com/2018/08/15/dom_03/index.html">
+<meta property="og:site_name" content="唐忠正">
+<meta property="og:description" content="Attr、Text 和 Comment, Element 上的一些方法">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/139/1/thumb.jpg">
+<meta property="article:published_time" content="2018-08-15T13:32:00.000Z">
+<meta property="article:modified_time" content="2020-09-08T13:46:12.266Z">
+<meta property="article:author" content="唐忠正">
+<meta property="article:tag" content="JAVASCRIPT">
+<meta property="article:tag" content="DOM">
+<meta property="article:tag" content="HTML">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/139/1/thumb.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>DOM 进阶 03</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/08/20/dom_04/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/08/08/dom_02/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/08/15/dom_03/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/08/15/dom_03/&text=DOM 进阶 03"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/08/15/dom_03/&is_video=false&description=DOM 进阶 03"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DOM 进阶 03&body=Check out this article: http://yoursite.com/2018/08/15/dom_03/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/08/15/dom_03/&name=DOM 进阶 03&description=&lt;p&gt;Attr、Text 和 Comment, Element 上的一些方法&lt;/p&gt;"><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#childNodes-%E8%83%BD%E8%8E%B7%E5%8F%96%E5%88%B0%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">childNodes 能获取到什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#element-%E7%9A%84%E4%B8%80%E4%BA%9B%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">element 的一些方法</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        DOM 进阶 03
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">唐忠正</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-08-15T13:32:00.000Z" itemprop="datePublished">2018-08-15</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/DOM/" rel="tag">DOM</a>, <a class="tag-link-link" href="/tags/HTML/" rel="tag">HTML</a>, <a class="tag-link-link" href="/tags/JAVASCRIPT/" rel="tag">JAVASCRIPT</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+<div class="article-gallery">
+    
+    <a class="gallery-item" target="_blank" href="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/139/1/thumb.jpg" rel="gallery_cketkf9hr00051mnrdiou3qwb noopener">
+        <img src="http://ppe.oss-cn-shenzhen.aliyuncs.com/collections/139/1/thumb.jpg" itemprop="image" />
+    </a>
+    
+</div>
+
+
+  <div class="content" itemprop="articleBody">
+    <p>Attr、Text 和 Comment, Element 上的一些方法</p>
+<a id="more"></a>
+
+<h2 id="childNodes-能获取到什么"><a href="#childNodes-能获取到什么" class="headerlink" title="childNodes 能获取到什么"></a>childNodes 能获取到什么</h2><p>当我们拿到一个 div 元素节点的 dom 对象，一个 HTMLDElement 类的对象时，我们使用 Node 类原型上的 childNodes 属性，可以获取到他的子节点。在返回的集合里，有 Element，Comment 以及 Text 类对应的节点类型。这个属性名看着是获取所有的节点信息，但是只会返回这三种，Attr 属性节点都不会返回。</p>
+<p>只有通过 Element. attributes 属性 能获取该元素节点的所有属性子节点。</p>
+<p>我们知道 Document 对象也继承了 Node 类，所以 document 对象也可以使用 childNodes，这时候一般返回 doctype 那个文档节点和 html 元素节点。</p>
+<p>Element Attr Text<br>nodeType 1 2 3<br>nodeName 大写元素标签名 小写属性名 #text<br>nodeValue null 属性值 值</p>
+<h2 id="element-的一些方法"><a href="#element-的一些方法" class="headerlink" title="element 的一些方法"></a>element 的一些方法</h2><p>取节点相关</p>
+<ol>
+<li>chlidNodes</li>
+<li>children 只返回元素节点</li>
+<li>firstChild</li>
+<li>firstElementChild</li>
+<li>lastChild</li>
+<li>lastElementChild</li>
+<li>nextSibling</li>
+<li>nextElementSibling</li>
+<li>previousSibling</li>
+<li>previousElementSibling</li>
+<li>parentNode. 返回一定是一个 Element<br>取属性</li>
+<li>className 返回字符串</li>
+<li>classList 数组</li>
+<li>style 返回所有的 style 属性和值<br>宽高度相关 height 和 width，offset 可理解为补偿？偏移？</li>
+<li>clientHeight 自己实际的高度，不含边框和滚动条</li>
+<li>offsetHeight 含类边框和滚动条的高度</li>
+<li>scrollHeight 内容的大小，即刚好不显示滚动条的大小<br>Top Left 相关</li>
+<li>clientTop border-top 的厚度</li>
+<li>offsetParent 定位父级<br>1）如果流式布局下来的话，那么一个元素的 offsetParent 是 body，body 的 offsetParent 是 null<br>2）如果他是 fixed 的话，那么该元素 offsetParent 是 null<br>3）总之，最外层 offsetParent 都是 null<br>4）父级有 relative absolute 定位元素了，就找离他最近的。</li>
+<li>offsetTop 该元素 距离 offsetParent 元素顶部的高度，从自元素 border 外开始算到父元素 border 内结束。</li>
+<li>scrollTop 滚动条滚动的距离，a 元素内有滚动条，a.scrollTop=200 可以设置滚动条的滚动距离是向下滚了 200px</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#childNodes-%E8%83%BD%E8%8E%B7%E5%8F%96%E5%88%B0%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">childNodes 能获取到什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#element-%E7%9A%84%E4%B8%80%E4%BA%9B%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">element 的一些方法</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/08/15/dom_03/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://yoursite.com/2018/08/15/dom_03/&text=DOM 进阶 03"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/08/15/dom_03/&is_video=false&description=DOM 进阶 03"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DOM 进阶 03&body=Check out this article: http://yoursite.com/2018/08/15/dom_03/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://yoursite.com/2018/08/15/dom_03/&title=DOM 进阶 03"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/08/15/dom_03/&name=DOM 进阶 03&description=&lt;p&gt;Attr、Text 和 Comment, Element 上的一些方法&lt;/p&gt;"><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 唐忠正
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/tangzhongzhengReal">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-37473492-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+
